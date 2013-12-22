@@ -169,7 +169,7 @@ h1, h2, h3, h4 {
 /**
  * Auto layout
  */
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   .layout {
     padding: 0; }
 
@@ -188,4 +188,7 @@ h1, h2, h3, h4 {
     text-align: center; }
 
   .container {
-    padding: 20px 30px; } }
+    padding: 20px 30px; }
+
+  .content {
+    padding: 20px 0 0; } }
