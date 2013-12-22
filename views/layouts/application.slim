@@ -1,0 +1,49 @@
+doctype html
+html
+  head
+    meta charset="utf-8"
+    meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1"
+    title = title
+    link rel="alternate" type="application/atom+xml" title="Atom Feed" href="/feed.xml"
+    link rel="icon" type="image/vnd.microsoft.icon" href="/assets/images/favicon.ico"
+    link rel="stylesheet" type="text/css" href="/assets/stylesheets/normalize.css"
+    link rel="stylesheet" type="text/css" href="/assets/stylesheets/main.css"
+
+  body
+    div class="layout"
+      div class="side"
+        header class="header"
+          hgroup
+            h1
+              a href="/"
+                = title
+            h2
+              | Just a logging
+
+        div class="profile"
+          p class="account"
+            img src="/assets/images/waka.png" width="48" height="48"
+            a href="https://twitter.com/yo_waka" target="_blank"
+              | @yo_waka
+          p class="intro"
+            | Software Engineer
+            br
+            | 部屋とYシャツとJavaScript
+
+      div class="main"
+        div class="container"
+          == yield
+
+        footer class="footer"
+          div class="inner"
+            p class="copyright"
+              | Copyright &copy; 2013 by 
+              a href="https://twitter.com/yo_waka" target="_blank"
+                | @yo_waka
+            p class="poweredby"
+              | Powered by 
+              a href="http://pages.github.com" target="_blank"
+                | GitHub Pages
+              | &nbsp;&&nbsp;
+              a href="https://github.com/waka/musako" target="_blank"
+                | musako
