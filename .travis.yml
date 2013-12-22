@@ -2,9 +2,9 @@ language: ruby
 rvm: 2.0.0
 env:
   global:
-    - GIT_COMMITTER_NAME=yo_waka
+    - GIT_COMMITTER_NAME=waka
     - GIT_COMMITTER_EMAIL=y.wakahara@gmail.com
-    - GIT_AUTHOR_NAME=yo_waka
+    - GIT_AUTHOR_NAME=waka
     - GIT_AUTHOR_EMAIL=y.wakahara@gmail.com
     - secure: "LSR2Rrt5EyGQ+RZSZPCIL7TQ2RxDG2NJ4riSlpJvDabgFwmuW0LdIuhGF8liu0WuUq5jXhX4CzRxvMeM8udjnQiDHXeRbnkkEWqMtw1TAAyGhYYhETRYJCV2xiZfdFAd9EJWAU1Op0OJBDU4BeeVzhgvU3bWXSJnbcDbJlAXRFI="
 script:
@@ -14,7 +14,7 @@ after_success:
   - git init
   - git add --all
   - git commit -m "Update by Travis CI"
-  - 'git push --quiet https://$GITHUB_TOKEN@github.com/waka/waka.github.io.git master -f 2> /dev/null'
+  - 'git push --quiet https://$GH_TOKEN@github.com/waka/waka.github.io.git master -f 2> /dev/null'
 
 branches:
   only:
