@@ -1,3 +1,5 @@
 div class="content"
+  div class="post-date"
+    = post.date.strftime("%Y-%m-%d")
   article class="post"
     == post.html

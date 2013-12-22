@@ -110,7 +110,7 @@ h1, h2, h3, h4 {
  * Contents
  */
 .content {
-  padding: 64px 96px; }
+  padding: 40px 96px 64px; }
 
 /**
  * Footer
@@ -151,6 +151,12 @@ h1, h2, h3, h4 {
 /**
  * Post
  */
+.post-date {
+  margin-left: -0.1em;
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 14px; }
+
 .post {
   line-height: 1.8em; }
   .post h1 {
