@@ -13,7 +13,7 @@ xml.feed "xmlns" => "http://www.w3.org/2005/Atom" do
       xml.link "rel" => "alternate", "href" => URI.join(config[:site_url], post.url)
       xml.id URI.join(config[:site_url], post.url)
       xml.published post.iso_date
-      xml.updated File.mtime(post.path)
+      xml.updated File.mtime(post.path).strftime("%FT%T%z")
       xml.author { xml.name config[:author] }
       xml.content post.html, "type" => "html"
     end
