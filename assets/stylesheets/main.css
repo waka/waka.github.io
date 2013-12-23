@@ -164,6 +164,8 @@ h1, h2, h3, h4 {
   .post h2 {
     margin: .83em 0;
     font-size: 1.5em; }
+  .post a {
+    color: #8e8ed6; }
   .post pre {
     padding: 1.1em;
     border: 1px solid #ddd;
@@ -196,5 +198,15 @@ h1, h2, h3, h4 {
   .container {
     padding: 20px 30px; }
 
+  .posts,
   .content {
-    padding: 20px 0 0; } }
+    padding: 20px 0 0; }
+
+  .posts dt {
+    display: block;
+    font-size: 0.6em; }
+
+  .post h1 {
+    font-size: 1.8em; }
+  .post h2 {
+    font-size: 1.4em; } }

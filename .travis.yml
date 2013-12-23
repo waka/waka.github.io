@@ -13,7 +13,7 @@ after_success:
   - cd target
   - git init
   - git add --all
-  - git commit -m "Update by Travis CI"
+  - git commit -m "[ci skip] Update by Travis CI"
   - 'git push --quiet https://$GH_TOKEN@github.com/waka/waka.github.io.git master -f 2> /dev/null'
 
 branches:
