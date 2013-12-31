@@ -1,3 +1,3 @@
 source 'https://rubygems.org'
 
-gem 'musako', '0.0.4'
+gem 'musako', github: 'waka/musako'
