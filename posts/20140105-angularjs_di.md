@@ -14,7 +14,7 @@ userControllers.controller('UsersCtrl', function($scope, $http) {
 });
 ```
 
-これは、$ControllerProviderをインスタンス化する際にannotate関数でDI対象となる引数を取得しているから。
+これは、定義したコントローラーをインスタンス化する際にannotate関数でDI対象となる引数を取得して、該当するサービスオブジェクトに差し替えているから。
 
 ```
 function invoke(fn, self, locals){
