@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/waka/musako.git
-  revision: 75edd69371317fb92afe970aef108d2bcef198f1
+  revision: 484cb62395f41b04b66bf2187ec4075b439c14a0
   specs:
     musako (0.0.4)
       builder
