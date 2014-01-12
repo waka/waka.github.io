@@ -52,7 +52,7 @@ var ngModelDirective = function() {
 };
 ```
 
-「[AngularJSの2way bindingの仕組みを追ってみた]()」で追っていた初期化処理（bootstrap関数）でcollectDirective関数が呼ばれ、スコープが管理するHTML内で「ng-model」が定義されていると、AngularJS内で「ngModel」をキーをしてマッピングされているngModelDirectiveが実行される。  
+「[AngularJSの2way bindingの仕組みを追ってみた](http://waka.github.io/2014/1/4/angularjs_2waybinding.html)」で追っていた初期化処理（bootstrap関数）でcollectDirective関数が呼ばれ、スコープが管理するHTML内で「ng-model」が定義されていると、AngularJS内で「ngModel」をキーをしてマッピングされているngModelDirectiveが実行される。  
 ここで返されたオブジェクトがディレクティブとなる。  
 compileプロパティを持たず、linkプロパティを持っている場合は、linkプロパティを返す関数がcompileプロパティとしてディレクティブにセットされる。
 
