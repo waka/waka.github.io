@@ -18,7 +18,7 @@ viewDidLoadなどでscreenNameに画面名をセットしておくと、viewDidA
 @interface SampleViewController : GAITrackedViewController
 @end
 
-@implementation MyViewController
+@implementation SampleViewController
 
 - (void)viewDidLoad
 {
@@ -90,7 +90,7 @@ AppDelegateでこいつを呼び出してUIViewControllerのviewDidAppear関数�
 ```
 #import "UIViewController+GAInject.h"
 
-@implementation AppDelegate
+@implementation SampleAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
