@@ -85,12 +85,12 @@ Objective-CにはMethod Swizzlingという、すでに実装されているク�
 @end
 ```
 
-後は、AppDelegateでこいつを呼び出して定義を入れ替えてあげればオッケー。
+AppDelegateでこいつを呼び出してUIViewControllerのviewDidAppear関数を入れ替える。
 
 ```
 #import "UIViewController+GAInject.h"
 
-@implementation FreeeAppDelegate
+@implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -102,4 +102,4 @@ Objective-CにはMethod Swizzlingという、すでに実装されているク�
 ```
 
 これで、UIViewControllerを継承しているUITableViewControllerや自作ビューコントローラーでも、自動でトラッキング処理が走るようになります。  
-method\_exchangeimplementations、ひっじょーに面白い仕組みですが、そのクラスと子クラスすべての挙動が変わるので、使いどころには要注意ですね。
+method\_exchangeimplementations、Rubyのalias\_method感覚で使えるヒッジョーに面白い仕組みですが、そのクラスと子クラスすべての挙動が変わるので使いどころには要注意ですね。
