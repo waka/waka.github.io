@@ -17,7 +17,7 @@ AngularJSが持つ[組み込みのディレクティブ](http://docs.angularjs.o
 
 ベースとなるngDirective関数を見ると、"link"と"restrict"プロパティを持ったオブジェクトを返す関数を作っていることが分かる。
 
-```
+```javascript
 function ngDirective(directive) {
   if (isFunction(directive)) {
     directive = {
