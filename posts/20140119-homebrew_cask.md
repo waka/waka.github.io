@@ -7,7 +7,7 @@ Mac上の環境構築でよく聞くのは、GitHubが公開している[Boxen](
 
 1つずつコマンド打って全部入れていってもいいんだけど、最近のHomebrewはBrewfileを使ってパッケージ管理できるので一発で入れられて便利。
 
-```
+```sh
 # Make sure using latest Homebrew
 update
 
@@ -44,14 +44,14 @@ BrewfileをGithubかなにかで管理しておけば、新しいマシンが来
 これを変えたい場合は、「HOMEBREW\_CASK\_OPTS」という環境変数に指定すれば変更できる。  
 自分はhomebrew本体と同様にCaskroomを「/usr/local」下に置きたかったのと、シンボリックリンクは「/Applications」に貼りたかったので変更した。
 
-```
+```sh
 export HOMEBREW_CASK_OPTS="--appdir=/Applications --caskroom=/usr/local/Caskroom"
 ```
 
 ちなみに自分はAlfredをランチャーアプリとして使っていて、homebrew-caskで入れたアプリはシンボリックリンクなので検索対象になってくれなかった。  
 ただ、対応策としてサブコマンドがちゃんと用意されていて、そいつを実行すると検索対象に含まれるようになった。  
 
-```
+```sh
 $ brew cask alfred
 $ brew cask alfred link # CaskroomをAlfredの検索パスに追加
 ```

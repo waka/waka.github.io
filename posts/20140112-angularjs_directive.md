@@ -31,7 +31,7 @@ function ngDirective(directive) {
 
 これだけじゃよく分からないので、「ng-model」ディレクティブを見てみる。
 
-```
+```javascript
 var ngModelDirective = function() {
   return {
     require: ['ngModel', '^?form'],
@@ -69,7 +69,7 @@ compileプロパティを持たず、linkプロパティを持っている場合
 リンク関数には「PRE LINKING」「POST LINKING」があるが、これは子要素に対してリンク関数を実行する前に実行するか後に実行するかというフェーズがある。  
 「PRE LINKING」にするか「POST LINKING」にするかは、ディレクティブを定義する際のcomlileプロパティに"pre"か"post"を指定すれば選択可能。
 
-```
+```javascript
 compile: function compile(scope, element, attr) {
   return {
     pre: function preLink(scope, iElement, iAttrs, controller) { ... },

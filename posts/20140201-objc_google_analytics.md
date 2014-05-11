@@ -5,7 +5,7 @@
 GoogleAnalyticsはご存知みんな知っているアクセス解析ツール。  
 iOS用にもSDKが公開されていて、CocoaPodsを使っていればpod installで簡単に入れられる。
 
-```
+```sh
 pod 'GoogleAnalytics-iOS-SDK', '~> 3.0'
 ```
 
@@ -14,7 +14,7 @@ pod 'GoogleAnalytics-iOS-SDK', '~> 3.0'
 1つは、GAITrackedViewControllerクラスを継承したUIViewControllerを作る。  
 viewDidLoadなどでscreenNameに画面名をセットしておくと、viewDidAppearで自動でトラッキングリクエストが送信される。
 
-```
+```objc
 @interface SampleViewController : GAITrackedViewController
 @end
 
@@ -32,7 +32,7 @@ end
 こっちはWebブラウザ版の使い方に近い。  
 UITableViewControllerなどUIViewControllerのサブクラスを使っている場合は、こっちでやるしかない。
 
-```
+```objc
 - (void)viewDidAppear
 {
     [super viewDidAppear];
@@ -53,7 +53,7 @@ Objective-CにはMethod Swizzlingという、すでに実装されているク�
 つまり、UIViewControllerのカテゴリ拡張を作って、viewDidAppearをGATrackerの処理を追加してものに入れ替える関数を用意する。  
 画面名には「NSStringFromClass([self class])」でクラス名を自動でセットしてやる。
 
-```
+```objc
 #import <objc/runtime.h>
 
 @implementation UIViewController (GAInject)
@@ -87,7 +87,7 @@ Objective-CにはMethod Swizzlingという、すでに実装されているク�
 
 AppDelegateでこいつを呼び出してUIViewControllerのviewDidAppear関数を入れ替える。
 
-```
+```objc
 #import "UIViewController+GAInject.h"
 
 @implementation SampleAppDelegate

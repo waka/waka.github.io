@@ -4,7 +4,7 @@ AngularJS黒魔術のうちの1つ。DI。
 
 コントローラーの引数に$httpなどを指定すると、なぜ何もしなくてもHttpProviderの返り値が入ってくるのか。
 
-```
+```javascript
 var userControllers = angular.module('userControllers', []);
 
 userControllers.controller('UsersCtrl', function($scope, $http) {
@@ -16,7 +16,7 @@ userControllers.controller('UsersCtrl', function($scope, $http) {
 
 これは、定義したコントローラーをインスタンス化する際にannotate関数でDI対象となる引数を取得して、該当するサービスオブジェクトに差し替えているから。
 
-```
+```javascript
 function invoke(fn, self, locals){
   var args = [],
       $inject = annotate(fn),
@@ -47,7 +47,7 @@ function invoke(fn, self, locals){
 FunctionオブジェクトをtoStringで文字列化して、引数に当たる文字列を抜き出し、返している。  
 fn.lengthはその関数が受け取る引数の数を表す。
 
-```
+```javascript
 function annotate(fn) {
   var $inject,
       fnText,
@@ -82,7 +82,7 @@ Angularが用意しているProviderを使いたければ、Angularが中で持�
 また、よく言われるminifyのための注意として、ユーザーが定義するコントローラーやサービスには文字列でも引数を指定しておくというのも納得。  
 そうしないとminify時に引数名が短縮されてしまうので、DIすべき対象が見つからなくなってしまう。
 
-```
+```javascript
 userControllers.controller('UsersCtrl', ['$scope', '$http', function($scope, $http) {
   $http.get('users/index.json').success(function(data) {
     $scope.users = data;

@@ -3,7 +3,7 @@
 AngularJSの特徴でもある、モデルとビューの2way binding。  
 AngularJSの簡単なコードがあるとする。（投稿時点ではv1.2.6）
 
-```
+```html
 <body ng-app ng-init="message = 'nothing'">
   <div ng-controller="SampleCtrl">
     <input type="text" ng-model="message">
@@ -36,7 +36,7 @@ AngularJSはuncompressedなファイルでは全体で20539行。
 
 20535行目でロード時のイベントハンドラが発火される。
 
-```
+```javascript
 jqLite(document).ready(function() {
   angularInit(document, bootstrap);
 });
@@ -53,7 +53,7 @@ angularInit関数の中で、「'ng:app', 'ng-app', 'x-ng-app', 'data-ng-app'」
 
 サービスのファクトリー関数を見ると、名前の最後に"Provider"をつけて再起的にinvokeしていることが分かる。
 
-```
+```javascript
 createInternalInjector(instanceCache, function(servicename) {
   var provider = providerInjector.get(servicename + providerSuffix); // providersuffix == "Provider"
   return instanceInjector.invoke(provider.$get, provider);
@@ -62,7 +62,7 @@ createInternalInjector(instanceCache, function(servicename) {
 
 doBootstrap関数では、最終的にScopeインスタンスの$apply関数が実行される。
 
-```
+```javascript
 injector.invoke(['$rootScope', '$rootElement', '$compile', '$injector', '$animate',
   function(scope, element, compile, injector, animate) {
     scope.$apply(function() {
@@ -80,7 +80,7 @@ compile関数で、引数に渡されたelementから再帰的にHTML要素を�
 
 例えば、ng-init属性に対応するngInitDirectiveディレクティブはこのようになっている。
 
-```
+```javascript
 var ngInitDirective = ngDirective({
   priority: 450,
   compile: function() {
@@ -99,7 +99,7 @@ ng-controllerやng-modelもcompile関数でディレクティブを集め、返�
 実際に値をセットしているのは、10238行目のsetter関数で行われる。  
 最初の引数の「obj」にはScopeインスタンスが入っている。
 
-```
+```javascript
 //////////////////////////////////////////////////
 // Parser helper functions
 //////////////////////////////////////////////////
@@ -120,7 +120,7 @@ function setter(obj, path, setValue, fullExp, options) {
 
 コントローラについて、$ControllerProviderが返したクロージャが実行され、インスタンス化される。
 
-```
+```javascript
 return function(expression, locals) {
   var instance, match, constructor, identifier;
 
@@ -154,7 +154,7 @@ return function(expression, locals) {
 実際にインスタンス化されるのは「$injector.instantiate(expression, locals)」の行だが、ここでユーザーが定義したコントローラーのコンストラクタを実行した結果が返る。  
 新規で作ったFunctionオブジェクトをthisとしてコントローラーのコンストラクタを実行するのが面白い。
 
-```
+```javascript
 function invoke(fn, self, locals){
   var args = [],
       $inject = annotate(fn),
@@ -201,7 +201,7 @@ function instantiate(Type, locals) {
 モデルに指定した変数の値が変更された場合、コントローラーの$viewValueに値をセットして再描画する。  
 これがモデルからビューへのバインディングになっているわけか。
 
-```
+```javascript
 $scope.$watch(function ngModelWatch() {
     var value = ngModelGet($scope);
 
@@ -229,7 +229,7 @@ $scope.$watch(function ngModelWatch() {
 キー入力を監視し、Scopeインスタンスの$apply関数でコントローラーの$setViewValue関数に新しい値を渡して再描画させる。  
 他のinput要素などの再描画ロジックの違いはここで吸収し、ctrl.$renderに関数をセットしている。
 
-```
+```javascript
 var listener = function() {
   if (composing) return;
   var value = element.val();
@@ -248,7 +248,7 @@ var listener = function() {
 
 「ng-pattern」という属性値をセットしておくと、バリデーションとしてセットできることも分かる。
 
-```
+```javascript
 // pattern validator
 var pattern = attr.ngPattern,
     patternValidator,
@@ -270,7 +270,7 @@ var validate = function(regexp, value) {
 $scope.messageの値が変わったら、$scope.getMessage()の結果も変わるので、「{{}}」の部分が変更される。  
 これでモデルからビューへのバインディングの仕組みが分かった。
 
-```
+```javascript
 function textInterpolateLinkFn(scope, node) {
   var parent = node.parent(),
       bindings = parent.data('$binding') || [];
@@ -285,7 +285,7 @@ function textInterpolateLinkFn(scope, node) {
 最後に、$rootScope.$digest関数が呼ばれ、Scopeの階層を下りながらScopeのwatch対象に対してリスナー関数を実行していく。  
 $scope.messageには"nothing"という文字列が新しく入っているので、変更後の値として扱われる。
 
-```
+```javascript
 if ((watchers = current.$$watchers)) {
   // process our watches
   length = watchers.length;

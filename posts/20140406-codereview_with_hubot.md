@@ -12,7 +12,7 @@ CoffeeScriptでスクリプト書けるのでとてもお手軽。
 
 sushiという名前のHubotを立てて、GitHubのプルリクのURLをbotに投げるとランダムでレビューお願いします！とメンションを飛ばすようにしてみた。
 
-```
+```sh
 xxx   | @sushi https://github.com/AAA/BBB/pull/999
 sushi | @yyy オナシャス！ https://github.com/AAA/BBB/pull/999
 ```
