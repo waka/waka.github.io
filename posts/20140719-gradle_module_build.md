@@ -1,4 +1,4 @@
-# VolleyのbuildToolsVersionをafterEvaluateで上書く
+# volley（サブプロジェクト）のbuildToolsVersionをafterEvaluateで上書く
 
 Android StudioがBetaになったので、0.8.2に上げようとしたらモジュールのビルドでハマった。
 
