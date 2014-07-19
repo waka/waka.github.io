@@ -1,4 +1,4 @@
-# AndroidアプリをGradleでビルドする際にモジュール（というかVolley）のcompileSdkVersionとbuildToolsVersionを強制する
+# VolleyのbuildToolsVersionをafterEvaluateで上書く
 
 Android StudioがBetaになったので、0.8.2に上げようとしたらモジュールのビルドでハマった。
 
