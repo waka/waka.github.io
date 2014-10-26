@@ -21,3 +21,5 @@ freee社で50人規模の勉強会を開催するのは初めてだったので�
 <img src="/assets/images/rac_01.jpg" />
 
 <img src="/assets/images/rac_02.jpg" />
+
+@ymrl 写真拝借しました。当日はありがとうございました。
