@@ -43,17 +43,8 @@ h1, h2, h3, h4 {
  */
 .layout {
   position: relative;
-  padding-left: 280px;
-  /* "left col (nav + list)" width */ }
-
-.side {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  width: 280px;
-  margin-left: -280px;
-  background: #18213d;
-  color: #fff; }
+  width: 740px;
+  margin: 0 auto; }
 
 .main {
   position: relative;
@@ -63,7 +54,7 @@ h1, h2, h3, h4 {
  * Header
  */
 .header {
-  padding: 30px 20px;
+  margin: 4em 0 2em;
   font-size: 1.125em;
   text-align: center; }
   .header h1,
@@ -72,80 +63,72 @@ h1, h2, h3, h4 {
   .header h1 {
     font-size: 140%; }
     .header h1 a {
-      color: #fff;
       text-decoration: none; }
   .header h2 {
     color: #8e8ed6;
     font-size: 100%; }
 
 /**
- * Profile module
- */
-.profile {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 0 20px 30px;
-  font-size: 1.125em;
-  text-align: center; }
-
-.account {
-  height: 45px;
-  line-height: 45px; }
-  .account img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 50px; }
-  .account a {
-    margin-left: 10px;
-    text-decoration: none;
-    vertical-align: top; }
-
-.intro {
-  font-size: 80%; }
-
-/**
  * Contents
  */
 .content {
-  padding: 30px 72px 48px; }
+  padding: 30px 0 48px; }
+
+/**
+ * Profile module
+ */
+.profile {
+  padding: 30px 0;
+  border-top: 1px solid #ccc;
+  text-align: left; }
+  .profile .account {
+    display: table-cell; }
+    .profile .account img {
+      border-radius: 50px; }
+  .profile .intro {
+    display: table-cell;
+    padding-left: 15px;
+    vertical-align: middle; }
+    .profile .intro a {
+      font-size: 100%; }
+    .profile .intro p {
+      margin: 5px 0 0;
+      padding: 0;
+      font-size: 90%;
+      color: #4f5759; }
 
 /**
  * Footer
  */
-.footer .inner {
-  margin-top: 30px;
-  margin-bottom: 30px;
-  font-size: 16px;
+.footer {
+  padding: 30px 0;
+  border-top: 1px solid #ccc;
   text-align: center; }
-.footer .copyright,
-.footer .poweredby {
-  margin: 0; }
-  .footer .copyright a,
-  .footer .poweredby a {
-    text-decoration: none; }
-.footer .poweredby {
-  font-size: 80%; }
+  .footer .copyright {
+    margin: 0;
+    font-size: 80%; }
+    .footer .copyright a {
+      text-decoration: none; }
 
 /**
  * Index
  */
 .posts {
-  padding: 40px 30px; }
+  padding: 30px 0; }
   .posts dl {
     position: relative;
-    margin: 0 0 20px;
-    font-size: 105%; }
+    margin: 0 0 1.2em;
+    font-size: 1.2em; }
   .posts dt {
     position: absolute;
     top: 0;
     left: 0;
-    width: 120px; }
+    width: 120px;
+    color: #4f5759; }
   .posts dd {
     display: inline-block;
     margin: 0;
-    padding: 0 0 0 150px; }
+    padding: 0 0 0 165px; }
     .posts dd a {
       color: #333;
       font-weight: bold; }
@@ -161,61 +144,51 @@ h1, h2, h3, h4 {
   color: #333;
   font-size: 14px; }
 
-.post {
-  line-height: 1.8em; }
-  .post h1 {
-    margin: 0 0 1.4em -0.1em; }
-  .post h2 {
-    margin: .83em 0;
-    font-size: 1.5em; }
-  .post h1,
-  .post h2,
-  .post h3 {
-    color: #333; }
-  .post a:hover {
-    color: #8e8ed6; }
-  .post pre {
-    padding: 1.1em;
-    border: 1px solid #ddd;
-    line-height: 1.3;
-    background-color: #0a263f;
-    color: #fff;
-    font-size: 0.9em; }
-  .post code,
-  .post pre {
-    font-family: Consolas, monospace; }
+.post h1 {
+  margin: 0 0 1.1em 0; }
+.post h2 {
+  margin: .83em 0;
+  font-size: 1.5em; }
+.post h1,
+.post h2,
+.post h3 {
+  color: #333; }
+.post a:hover {
+  color: #8e8ed6; }
+.post p {
+  margin: 0 0 1em 0;
+  font-size: 105%;
+  line-height: 2;
+  color: #4f5759; }
+.post pre {
+  padding: 1.2em;
+  border: 1px solid #ddd;
+  line-height: 1.3;
+  background-color: #0a263f;
+  color: #fff;
+  font-size: 0.9em;
+  overflow: auto; }
+.post code,
+.post pre {
+  font-family: Consolas, monospace; }
 
 /**
  * Auto layout
  */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 740px) {
   .layout {
-    padding: 0; }
-
-  .side {
-    position: relative;
-    width: 100%;
-    margin: 0; }
+    width: 100%; }
 
   .header {
-    padding: 5px 20px 0;
-    text-align: center; }
+    margin: 2em 0 1em; }
 
-  .profile {
-    position: relative;
-    padding: 0 20px 5px;
-    text-align: center; }
+  .profile,
+  .footer {
+    margin: 0 30px;
+    padding: 15px 0; }
 
-  .account {
-    height: 32px;
-    line-height: 32px;
-    margin-bottom: 10px; }
-    .account img {
-      width: 32px;
-      height: 32px; }
-
-  .intro {
-    display: none; }
+  .profile .intro {
+    font-size: 80%; }
 
   .container {
     padding: 10px 30px; }
@@ -225,7 +198,7 @@ h1, h2, h3, h4 {
     padding: 10px 0 0; }
 
   .posts dl {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     font-size: 1.0em; }
   .posts dt {
     position: relative;
@@ -239,5 +212,7 @@ h1, h2, h3, h4 {
     .post h1 {
       margin-bottom: 1.0em;
       font-size: 1.6em; }
-    .post h2 {
-      font-size: 1.4em; } }
+    .post p {
+      line-height: 1.6; }
+    .post img {
+      max-width: 100%; } }
