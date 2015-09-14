@@ -240,4 +240,6 @@ h1, h2, h3, h4 {
       margin-bottom: 1.0em;
       font-size: 1.6em; }
     .post h2 {
-      font-size: 1.4em; } }
+      font-size: 1.4em; }
+    .post img {
+      max-width: 100%; } }
