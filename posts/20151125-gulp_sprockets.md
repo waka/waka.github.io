@@ -24,7 +24,7 @@ XXX-railsなどGemで読んでいるフロントエンド系ライブラリも�
 
 ざっくりいうと5つ。
 
-- asset_pathやimage_urlなどのヘルパー関数を組み込む
+- asset\_pathやimage\_urlなどのヘルパー関数を組み込む
 - 「//= foo」や「/*= bar */」などのディレクティブを解釈してよしなにconcat
 - CoffeeScriptやScssやJSTをコンパイル
 - (Precompile時) concatしたファイルの内容からmd5ハッシュを作りファイル名につける
@@ -44,7 +44,7 @@ XXX-railsなどGemで読んでいるフロントエンド系ライブラリも�
 
 manifest.jsonについてはjoker1007さんの[gulp-rev-rails-manifest](https://github.com/joker1007/gulp-rev-rails-manifest)を使えば解決できそう。  
 
-上のスライドにも書かれている、SCSS内に書かれたasset_pathやimage_urlなどのSprocketsが提供しているヘルパー関数をどう解決するかが難関っぽい。
+上のスライドにも書かれている、SCSS内に書かれたasset\_pathやimage\_urlなどのSprocketsが提供しているヘルパー関数をどう解決するかが難関っぽい。
 Precompile時はmd5ハッシュ値を使ったファイル名に変換するなどしないと画像を読み込めなくなってしまう。。
 SprocketsではSassコンパイラにカスタム関数として定義してコンパイル時に変換している。
 
