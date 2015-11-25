@@ -74,6 +74,17 @@ gulp.task('build:css', () => {
 });
 ```
 
+Sprocketsディレクティブは使ってない、でもPrecompileは行いたい場合はプラグイン外してprecompileプラグインだけ実行すればmanifest.jsonに書き出されます。
+
+```js
+gulp.task('build:es2015', () => {
+  return gulp.src('app/assets/javascripts/*.es')
+    .pipe(babel())
+    .pipe(gulpIf(process.env.NODE_ENV === 'release', sprockets.precompile()))
+    .pipe(gulp.dest(destPath));
+});
+```
+
 ヘルパー関数はそういえばnode-sassもv3からカスタム関数定義できることを思い出したのでコンパイラに定義した。
 
 ディレクティブは最近はEsprimaやPostCSSを使うとコメント部をASTから簡単に取ってこれるので取得したコメントから雑に解釈させてる。
