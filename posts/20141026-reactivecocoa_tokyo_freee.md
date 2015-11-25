@@ -1,4 +1,4 @@
-# ReactiveCocoa Tokyo
+# ReactiveCocoa Tokyoで発表した
 
 先週になりますが、「[ReactiveCocoa Tokyo](http://connpass.com/event/8680/)というイベントがあり、そこでfreee社での導入の経緯やMVVMでのReactiveCocoaの使い方について話してきました。
 

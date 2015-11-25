@@ -1,4 +1,4 @@
-# Android meets RxJava
+# 渋谷JavaでRxJavaをAndroidアプリでどう活用するかという話をした
 
 少し、いやかなり前に渋谷Javaで「Android meets RxJava」というタイトルでLTしてきました。
 スライド上げるのが遅くなってすいません。。。
