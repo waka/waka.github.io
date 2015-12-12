@@ -1,0 +1,20 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>渋谷JavaでRxJavaをAndroidアプリでどう活用するかという話をした - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1449932769" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2014-06-22</div><article class="post"><h1>渋谷JavaでRxJavaをAndroidアプリでどう活用するかという話をした</h1>
+
+<p>少し、いやかなり前に渋谷Javaで「Android meets RxJava」というタイトルでLTしてきました。<br>
+スライド上げるのが遅くなってすいません。。。</p>
+
+<p><iframe src="//www.slideshare.net/slideshow/embed_code/36154175" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/yo_waka/rxjava-meets-android-java6" title="RxJava meets Android - 渋谷Java#6" target="_blank">RxJava meets Android - 渋谷Java#6</a> </strong> from <strong><a href="http://www.slideshare.net/yo_waka" target="_blank">yo_waka </a></strong> </div></p>
+
+<p><a href="http://www.freee.co.jp/features/android">freeeのAndroidアプリ</a>の開発前にチーム内で考えていたのが、テストの書きやすさを考慮するとどうしてもFragmentとAPIのやりとり含むビジネスロジックを切り分けたいというところで、<br>
+ViewController/ViewModel/Modelを上手く疎に分けられる仕組みが必要でした。</p>
+
+<p>先行して開発していたiPhone版では、ReactiveCocoaを導入して上手くいったこともあり、FRPが出来るJavaのいいライブラリはないか探していたところ、上手くマッチしそうだったのがRxJavaでした。<br><br>
+RxJavaのObservable、Subscriber、Func/Actionを使うことで、API呼び出し/モデルへの変換/画面への表示を上手く切り分けることが可能になります。<br>
+また、ViewModelのプロパティをFragmentからバインディングすることにより、データの状態をFragment側で管理する必要がなくなります。</p>
+
+<p>Fragment側でデータの状態を持ってしまうと、いざそのテストを書く際にUIが必要になるので非常にめんどくさい。ViewModelまでで完結できればユニットテストだけでOK。<br>
+とはいえ、スライドにも書いてますが、ビジネスロジックがそこまで複雑でなければEventBusなどでやり取りするのもアリだと思います。</p>
+
+<p>こういうFRPなライブラリをクライアントアプリで使うと、コアな部分で使うためどうしてもロックインを防げないのがデメリットです。<br>
+<a href="http://www.reactive-streams.org/">Reactive Streams</a>による標準化に期待。</p>
+</article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. 部屋とYシャツとJavaScript. Ruby, JavaScript, Java & Android, Objective-C & iOS. freeeという会計スタートアップにjoinしました.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013-2015 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>

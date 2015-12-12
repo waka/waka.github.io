@@ -1,0 +1,92 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>AngularJSのディレクティブの仕組みを追ってみた - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1449932769" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2014-01-12</div><article class="post"><h1>AngularJSのディレクティブの仕組みを追ってみた</h1>
+
+<p>追ってみたシリーズ第3回目。</p>
+
+<p>AngularJSのディレクティブ、名前は聞いたことあるけどあれでしょ？自前の「ng-hoge」を作るための仕組みでしょ？<br><br>
+だいたいそんな感じですが、どうやって実現しているのか。</p>
+
+<h2>ディレクティブの役割</h2>
+
+<p>ディレクティブはHTMLビューを書き出すためだけのものじゃない。<br><br>
+「ng-controller」や「ng-model」など、HTMLに対して処理をバインド/注入する機能もディレクティブで出来ている。<br><br>
+AngularJSが持つ<a href="http://docs.angularjs.org/api/ng#directive">組み込みのディレクティブ</a>だけでもこれだけの数がある。</p>
+
+<p>まさしくAngularJSのベースとなっている仕組みがDirectiveというわけか。</p>
+
+<h2>追ってみる</h2>
+
+<p>ベースとなるngDirective関数を見ると、&quot;link&quot;と&quot;restrict&quot;プロパティを持ったオブジェクトを返す関数を作っていることが分かる。</p>
+<div class="highlight"><pre><span class="kd">function</span> <span class="nx">ngDirective</span><span class="p">(</span><span class="nx">directive</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">isFunction</span><span class="p">(</span><span class="nx">directive</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">directive</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="nx">link</span><span class="o">:</span> <span class="nx">directive</span>
+    <span class="p">};</span>
+  <span class="p">}</span>
+  <span class="nx">directive</span><span class="p">.</span><span class="nx">restrict</span> <span class="o">=</span> <span class="nx">directive</span><span class="p">.</span><span class="nx">restrict</span> <span class="o">||</span> <span class="s1">&#39;AC&#39;</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nx">valueFn</span><span class="p">(</span><span class="nx">directive</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>これだけじゃよく分からないので、「ng-model」ディレクティブを見てみる。</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">ngModelDirective</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="nx">require</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;ngModel&#39;</span><span class="p">,</span> <span class="s1">&#39;^?form&#39;</span><span class="p">],</span>
+    <span class="nx">controller</span><span class="o">:</span> <span class="nx">NgModelController</span><span class="p">,</span>
+    <span class="nx">link</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attr</span><span class="p">,</span> <span class="nx">ctrls</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// notify others, especially parent forms</span>
+
+      <span class="kd">var</span> <span class="nx">modelCtrl</span> <span class="o">=</span> <span class="nx">ctrls</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="nx">formCtrl</span> <span class="o">=</span> <span class="nx">ctrls</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">||</span> <span class="nx">nullFormCtrl</span><span class="p">;</span>
+
+      <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$addControl</span><span class="p">(</span><span class="nx">modelCtrl</span><span class="p">);</span>
+
+      <span class="nx">scope</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s1">&#39;$destroy&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">formCtrl</span><span class="p">.</span><span class="nx">$removeControl</span><span class="p">(</span><span class="nx">modelCtrl</span><span class="p">);</span>
+      <span class="p">});</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+</pre></div>
+<p>「<a href="http://waka.github.io/2014/1/4/angularjs_2waybinding.html">AngularJSの2way bindingの仕組みを追ってみた</a>」で追っていた初期化処理（bootstrap関数）でcollectDirective関数が呼ばれ、スコープが管理するHTML内で「ng-model」が定義されていると、AngularJS内で「ngModel」をキーをしてマッピングされているngModelDirectiveが実行される。<br><br>
+ここで返されたオブジェクトがディレクティブとなる。<br><br>
+compileプロパティを持たず、linkプロパティを持っている場合は、linkプロパティを返す関数がcompileプロパティとしてディレクティブにセットされる。</p>
+
+<p>このとき、ディレクティブに自動でセットされるプロパティは以下のものになる。</p>
+
+<ul>
+<li>compile（ディレクティブの実行内容）</li>
+<li>priority（DOMに複数のディレクティブが定義されている場合の優先順位）</li>
+<li>index（DOMに対して何番目に定義されたディレクティブか）</li>
+<li>name（ディレクティブにつけられている名前）</li>
+<li>require（依存関係を持つディレクティブ）</li>
+<li>restrict（ディレクティブの適用条件。&quot;A&quot;なら属性名、&quot;E&quot;なら要素名、&quot;AE&quot;ならどちらにもマッチ）</li>
+</ul>
+
+<p>そして返されたディレクティブは、要素のcompileプロセスにおいて、applyDirectivesToNode関数で要素に対して「POST LINKING」というリンク関数としてセットされる。<br><br>
+リンク関数には「PRE LINKING」「POST LINKING」があるが、これは子要素に対してリンク関数を実行する前に実行するか後に実行するかというフェーズがある。<br><br>
+「PRE LINKING」にするか「POST LINKING」にするかは、ディレクティブを定義する際のcomlileプロパティに&quot;pre&quot;か&quot;post&quot;を指定すれば選択可能。</p>
+<div class="highlight"><pre><span class="nx">compile</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">compile</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attr</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="nx">pre</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">preLink</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">iElement</span><span class="p">,</span> <span class="nx">iAttrs</span><span class="p">,</span> <span class="nx">controller</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">},</span>
+    <span class="nx">post</span><span class="o">:</span> <span class="kd">function</span> <span class="nx">postLink</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">iElement</span><span class="p">,</span> <span class="nx">iAttrs</span><span class="p">,</span> <span class="nx">controller</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c1">// or</span>
+  <span class="k">return</span> <span class="kd">function</span> <span class="nx">postLink</span><span class="p">(</span> <span class="p">...</span> <span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>この後、nodeLinkFnというクロージャ関数でリンク関数としてディレクティブのcompileに指定した処理がようやく実行される。<br>
+このとき、ディレクティブにcontrollerプロパティが指定されていれば、コントローラーがインスタンス化され、自分が所属するスコープ内の検索対象として使われる（requireで&quot;^&quot;がついていない場合）。<br><br>
+見つかったコントローラーは、コンパイル時の指定関数の第4引数に配列でセットされ渡される。</p>
+
+<h2>ディレクティブでできること</h2>
+
+<ul>
+<li>自分が定義した要素名が使えるようになり、その要素に対する初期処理をAngularJS内のフェーズごとに書ける</li>
+<li>既存の要素に対し、初期処理をAngularJS内のフェーズごとに書ける</li>
+<li>特定の要素、属性を持つスコープやコントローラーに対し、処理を外側から追加することができる</li>
+</ul>
+
+<p>このスコープやコントローラーに処理を追加できるのがキモだと思われます。<br><br>
+独自にAngularJSに機能を追加するプラグインやライブラリを書く場合、「PRE LINKING」で所属するスコープに関数を生やしたり、コントローラーに新たに処理をバインドしたりといったことはディレクティブを使うとよさそうです。</p>
+
+<p>今回はディレクティブの外部テンプレート機能については触れていないので、それはまた次に調べる。</p>
+</article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. 部屋とYシャツとJavaScript. Ruby, JavaScript, Java & Android, Objective-C & iOS. freeeという会計スタートアップにjoinしました.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013-2015 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>RailsのAsset PipelineとPrecompileをNode.jsのみで処理できるgulp-sprocketsを作った - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1449932769" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2015-11-25</div><article class="post"><h1>RailsのAsset PipelineとPrecompileをNode.jsのみで処理できるgulp-sprocketsを作った</h1>
+
+<p>仕事ではRailsアプリを書いていて、JSやCSSなどのフロントエンドはRailsのAsset Pipelineの仕組みに則ってビルドしてる。</p>
+
+<p>普通にRailsアプリ作ってると普段<a href="https://github.com/sstephenson/sprockets">Sprockets</a>について特に意識しないと思う。<br><br>
+Sprocketsはそこが凄くて、あまり考えなくてもドキュメント通りにやってれば、必要なAssetを結合できて、リリース時は変更がなければブラウザキャッシュから、変更があれば<br>
+新しく読み込まれるみたいなことをやってくれる。</p>
+
+<p>なんだけど、もうそろそろ新しい機能はES2015で書きたいよねという人が増えてきた。</p>
+
+<p>とはいえSprocketsは独自のディレクティブ以外は使えなくて、SprocketsWayから外れると途端に脆い。<br>
+ES2015 Modulesを使う場合、gulp&amp;babelなどでES5でコンパイルされたJavaScriptファイルをSprocketsが解釈できるasset pathに吐いて、asset pipelineの上に乗せ直す必要がある。<br>
+エイヤでやっちゃえばいいじゃんとも思うが、規模がデカくなると一気にやるのは時間もかかるし、他の人も開発しているので中々に難しい。上手く区切りながら移行を進めていく必要がある。</p>
+
+<p>そうなると、移行中はSprocketsによるビルドの仕組みとgulp両方覚える必要がある。<br>
+でないとデプロイ時にアセット周りで不具合が起きたときに追えない。<br>
+結構こいつが問題で、両方追える人増やすのも大変だし、できればより汎用的なツールであるgulpだけでフロントエンドをビルドできるようにしたいなと思い始めた。</p>
+
+<p>その他にも、特殊な事情でPrecompile時のRuby版Sassのコンパイルが遅かったり、もうCoffeeScriptファイルが多すぎてdevelopment環境で初回ビルドが遅すぎるというのもやりたくなった理由だったりする。</p>
+
+<p>XXX-railsなどGemで読んでいるフロントエンド系ライブラリも気づけば作者が全然アップデートしてくれなくなったものもあるし、依存ライブラリの定義がGemfileやpackage.json、Bowerfileなど散らばるのもよくない。全てpackage.jsonで管理したい。</p>
+
+<h2>Sprocketsがやっていること</h2>
+
+<p>ざっくりいうと5つ。</p>
+
+<ul>
+<li>asset_pathやimage_urlなどのヘルパー関数を組み込む</li>
+<li>「//= foo」や「/*= bar */」などのディレクティブを解釈してよしなにconcat</li>
+<li>CoffeeScriptやScssやJSTをコンパイル</li>
+<li>(Precompile時) concatしたファイルの内容からmd5ハッシュを作りファイル名につける</li>
+<li>(Precompile時) ビルドした各ファイルの情報をmanifest.jsonに書き込む</li>
+</ul>
+
+<p>最後のはprecompile時のみ必要な処理で、development時は不要。<br>
+これらをNode.jsの世界で実現できれば、gulpfileのみでRailsのフロントエンドなファイルをビルドすることが可能になるはず。</p>
+
+<h2>gulpだけでなんとかできない？</h2>
+
+<p>探してみると過去にSprockets脱却にチャレンジしている人は結構いる。<br>
+最後のは弊社の若手フロントエンドヤンキーによるスライド。</p>
+
+<ul>
+<li><a href="http://qiita.com/joker1007/items/9068e223744b3ac8c6dd">Sprockets再考 モダンなJSのエコシステムとRailsのより良い関係を探す</a></li>
+<li><a href="http://sssslide.com/speakerdeck.com/katryo/sprocketsjue-tinitiao-zhan-sita">Sprockets絶ちに挑戦した</a></li>
+<li><a href="http://www.slideshare.net/masatonoguchi169/sprockets-49965435">Sprocketsを捨てたい</a></li>
+</ul>
+
+<p>manifest.jsonについてはjoker1007さんの<a href="https://github.com/joker1007/gulp-rev-rails-manifest">gulp-rev-rails-manifest</a>を使えば解決できそう。  </p>
+
+<p>上のスライドにも書かれている、SCSS内に書かれたasset_pathやimage_urlなどのSprocketsが提供しているヘルパー関数をどう解決するかが難関っぽい。<br>
+Precompile時はmd5ハッシュ値を使ったファイル名に変換するなどしないと画像を読み込めなくなってしまう。。<br>
+SprocketsではSassコンパイラにカスタム関数として定義してコンパイル時に変換している。</p>
+
+<p>「//=require XXX」などのディレクティブについてもCommonJSやES2015 Modulesに全て置き換えるのが前提となっている。<br>
+規模が大きいとその書き換えが大変なので、できればそのまま使えるようにしたい。</p>
+
+<p>ソリューションが必要だ！</p>
+
+<h2>全部解決できるgulpプラグイン作った</h2>
+
+<p><a href="https://github.com/waka/gulp-sprockets">gulp-sprockets</a></p>
+
+<p>詳しくはREADMEとsample下をどうぞ。<br>
+移行後はサクッと外すだけにしたかったので、各種処理を提供するgulpストリームとして作った。<br>
+実際社内のRailsアプリで試してAsset PipelineのOn/Off両方で動いているのが確認できた。</p>
+
+<p>こんな感じでgulpでビルドするとSprocketsでビルドしたときと同等の成果物ができる。</p>
+<div class="highlight"><pre><span class="kr">import</span> <span class="nx">sprockets</span> <span class="nx">from</span> <span class="s1">&#39;gulp-sprockets&#39;</span><span class="p">;</span>
+
+<span class="nx">gulp</span><span class="p">.</span><span class="nx">task</span><span class="p">(</span><span class="s1">&#39;build:css&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">gulp</span><span class="p">.</span><span class="nx">src</span><span class="p">(</span><span class="s1">&#39;app/assets/stylesheets/*.css&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">sprockets</span><span class="p">.</span><span class="nx">css</span><span class="p">())</span>
+    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">gulpIf</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span> <span class="o">===</span> <span class="s1">&#39;release&#39;</span><span class="p">,</span> <span class="nx">sprockets</span><span class="p">.</span><span class="nx">precompile</span><span class="p">()))</span>
+    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">gulp</span><span class="p">.</span><span class="nx">dest</span><span class="p">(</span><span class="nx">destPath</span><span class="p">));</span>
+<span class="p">});</span>
+</pre></div>
+<p>Sprocketsディレクティブは使ってない、でもPrecompileは行いたい場合はプラグイン外してprecompileプラグインだけ実行すればmanifest.jsonに書き出されます。</p>
+<div class="highlight"><pre><span class="nx">gulp</span><span class="p">.</span><span class="nx">task</span><span class="p">(</span><span class="s1">&#39;build:es2015&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">gulp</span><span class="p">.</span><span class="nx">src</span><span class="p">(</span><span class="s1">&#39;app/assets/javascripts/*.es&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">babel</span><span class="p">())</span>
+    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">gulpIf</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span> <span class="o">===</span> <span class="s1">&#39;release&#39;</span><span class="p">,</span> <span class="nx">sprockets</span><span class="p">.</span><span class="nx">precompile</span><span class="p">()))</span>
+    <span class="p">.</span><span class="nx">pipe</span><span class="p">(</span><span class="nx">gulp</span><span class="p">.</span><span class="nx">dest</span><span class="p">(</span><span class="nx">destPath</span><span class="p">));</span>
+<span class="p">});</span>
+</pre></div>
+<p>ヘルパー関数はそういえばnode-sassもv3からカスタム関数定義できることを思い出したのでコンパイラに定義した。</p>
+
+<p>ディレクティブは最近はEsprimaやPostCSSを使うとコメント部をASTから簡単に取ってこれるので取得したコメントから雑に解釈させてる。</p>
+
+<p>コンパイル処理もサポートしたので、ES2015で書いたファイルもrequireディレクティブで読み込めるとかそういうのも出来そう。</p>
+</article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. 部屋とYシャツとJavaScript. Ruby, JavaScript, Java & Android, Objective-C & iOS. freeeという会計スタートアップにjoinしました.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013-2015 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>volley（サブプロジェクト）のbuildToolsVersionをafterEvaluateで上書く - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1449932769" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2014-07-19</div><article class="post"><h1>volley（サブプロジェクト）のbuildToolsVersionをafterEvaluateで上書く</h1>
+
+<p>Android StudioがBetaになったので、0.8.2に上げようとしたらモジュールのビルドでハマった。</p>
+
+<p>Android Studioのバージョンを上げるときは、build.gradleを弄る時でもある。<br>
+Betaに上げるからには最新版のGradleプラグインとAndroid SDKでコンパイル&amp;ビルドできるようにしたい。  </p>
+<div class="highlight"><pre><span class="c1">// project/gradle/gradle-wrapper.properties</span>
+<span class="n">distributionUrl</span><span class="o">=</span><span class="n">http</span><span class="err">\</span><span class="o">:</span><span class="c1">//services.gradle.org/distributions/gradle-1.12-all.zip</span>
+
+<span class="c1">// project/build.gradle</span>
+<span class="n">buildscript</span> <span class="p">{</span>
+  <span class="n">repositories</span> <span class="p">{</span>
+    <span class="n">mavenCentral</span><span class="p">()</span>
+  <span class="p">}</span>
+  <span class="n">dependencies</span> <span class="p">{</span>
+    <span class="n">classpath</span> <span class="p">&#39;</span><span class="n">com</span><span class="p">.</span><span class="n">android</span><span class="p">.</span><span class="n">tools</span><span class="p">.</span><span class="nl">build:gradle:</span><span class="mf">0.12</span><span class="p">.</span><span class="o">+</span><span class="p">&#39;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// project/app/build.gradle</span>
+<span class="n">android</span> <span class="p">{</span>
+  <span class="n">compileSdkVersion</span> <span class="mh">20</span>
+  <span class="n">buildToolsVersion</span> <span class="p">&#39;</span><span class="mf">20.0.0</span><span class="p">&#39;</span>
+<span class="p">}</span>
+</pre></div>
+<p>しかしビルドエラー。<br><br>
+ルートプロジェクトのGradleプラグインのバージョンを0.12に上げると、buildToolsVersionが&quot;19.1&quot;以上でないとビルドできない。<br><br>
+僕の環境では<a href="https://android.googlesource.com/platform/frameworks/volley/">volley</a>をモジュール（submodule）として組み込んでいて、compileSdkVersionとbuildToolsVersionがこのように指定されている。</p>
+<div class="highlight"><pre><span class="c1">// modules/volley/build.gradle</span>
+<span class="n">android</span> <span class="p">{</span>
+  <span class="n">compileSdkVersion</span> <span class="mh">19</span>
+  <span class="n">buildToolsVersion</span> <span class="o">=</span> <span class="mh">19</span>
+<span class="p">}</span>
+</pre></div>
+<p>volleyのソースを見る限りbuildToolsVersionを20に上げても特に問題なさそうなので、何とかしてビルドが実行される前にandroid()の中身を上書きしたい。<br><br>
+と思って、<a href="http://www.gradle.org/docs/1.12/userguide/userguide.html">Gradle User Guide</a>を眺めていたら、Project.afterEvaluate()というものを見つけた。<br>
+Project.afterEvaluate()は、そのプロジェクトのビルドスクリプトが評価された後に実行されるらしい。まさにやりたいことと一致！</p>
+
+<p>Gradleで分からないことがあれば、<a href="http://www.gradle.org/docs/1.12/userguide/userguide.html">Gradle User Guide</a>を見るのがオススメ。<br>
+Gradleのバージョンごとに用意されているので、使っているものに合わせて見るとよさげ（ちょくちょく変わったりするので）。</p>
+<div class="highlight"><pre><span class="n">subprojects</span> <span class="p">{</span> <span class="n">subproject</span> <span class="o">-&gt;</span>
+  <span class="n">afterEvaluate</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">subproject</span><span class="p">.</span><span class="n">plugins</span><span class="p">.</span><span class="n">hasPlugin</span><span class="p">(</span><span class="err">&#39;</span><span class="n">android</span><span class="o">-</span><span class="n">library</span><span class="err">&#39;</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">android</span> <span class="p">{</span>
+        <span class="n">compileSdkVersion</span> <span class="mi">20</span>
+        <span class="n">buildToolsVersion</span> <span class="err">&#39;</span><span class="mf">20.0.0</span><span class="err">&#39;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>これで、モジュールとして組み込んでいるライブラリプロジェクト全てのcompileSdkVersionとbuildToolsVersionをアプリのそれと合わせることができる。<br><br>
+もし特定のプロジェクトだけどうしても&quot;19.1&quot;でビルドしたければ、プロジェクトごとに指定すればおk。</p>
+<div class="highlight"><pre><span class="n">project</span><span class="p">(</span><span class="err">&#39;</span><span class="o">:</span><span class="n">modules</span><span class="o">:</span><span class="n">volley</span><span class="err">&#39;</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">afterEvaluate</span> <span class="p">{</span>
+    <span class="n">android</span> <span class="p">{</span>
+      <span class="n">compileSdkVersion</span> <span class="mi">20</span>
+      <span class="n">buildToolsVersion</span> <span class="err">&#39;</span><span class="mf">19.1</span><span class="err">&#39;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div></article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. 部屋とYシャツとJavaScript. Ruby, JavaScript, Java & Android, Objective-C & iOS. freeeという会計スタートアップにjoinしました.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013-2015 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>

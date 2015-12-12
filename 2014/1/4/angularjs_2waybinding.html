@@ -1,0 +1,288 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>AngularJSの2way bindingの仕組みを追ってみた - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1449932769" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2014-01-04</div><article class="post"><h1>AngularJSの2way bindingの仕組みを追ってみた</h1>
+
+<p>AngularJSの特徴でもある、モデルとビューの2way binding。<br><br>
+AngularJSの簡単なコードがあるとする。（投稿時点ではv1.2.6）</p>
+<div class="highlight"><pre><span class="nt">&lt;body</span> <span class="na">ng-app</span> <span class="na">ng-init=</span><span class="s">&quot;message = &#39;nothing&#39;&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">&quot;SampleCtrl&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">ng-model=</span><span class="s">&quot;message&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;br&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">ng-click=</span><span class="s">&quot;clearMessage()&quot;</span><span class="nt">&gt;</span>Clear<span class="nt">&lt;/button&gt;</span>
+    <span class="nt">&lt;br&gt;</span>
+    <span class="nt">&lt;span&gt;</span>{{getMessage()}}<span class="nt">&lt;/span&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;script&gt;</span>
+  var SampleCtrl = function($scope) {
+    $scope.message = &#39;&#39;;
+    $scope.clearMessage = function() {
+      $scope.message = &#39;&#39;;
+    };
+    $scope.getMessage = function() {
+      return $scope.message;
+    };
+  };
+  <span class="nt">&lt;script&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+</pre></div>
+<p>テキストボックスに文字を打ち込むと「{{getMessage()}}」に打ち込んだ文字がリアルタイムに表示されるし、「Set &quot;init&quot;」ボタンを押すとテキストボックスと「{{getMessage()}}」で表示されるテキストが空文字になる。<br><br>
+テキストボックスに$scopeのmessageプロパティをバインドしているので、テキストボックスがインタラクティブになるのは分かる。<br><br>
+しかしなぜ$scope.getMessage()も同じタイミングで実行されHTMLまで書き変わるのか。気になる。気になる・・！</p>
+
+<p>AngularJSのソースがどう動いているのか追ってみる。<br><br>
+AngularJSはuncompressedなファイルでは全体で20539行。<br><br>
+ギリギリ読めないことはない。</p>
+
+<p>20535行目でロード時のイベントハンドラが発火される。</p>
+<div class="highlight"><pre><span class="nx">jqLite</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">angularInit</span><span class="p">(</span><span class="nb">document</span><span class="p">,</span> <span class="nx">bootstrap</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+<p>angularInit関数の中で、「&#39;ng:app&#39;, &#39;ng-app&#39;, &#39;x-ng-app&#39;, &#39;data-ng-app&#39;」をid,classあるいは属性で持つ要素がAngularアプリのベース要素としてセットされる。<br><br>
+該当する要素がなければその後の処理はなにも実行されない。</p>
+
+<p>1283行目のdoBootstrap関数が実行される。<br><br>
+名前の通り初期化関数であり、ここでモジュールをロードし、Angular内の各サービスがファクトリー関数でインスタンス化される。<br><br>
+ここで利用されるinjectorというオブジェクトは、内部関数を呼び出すための抽象レイヤーみたいなもの。<br><br>
+本筋とはずれるが、window.nameに「NG_DEFER_BOOTSTRAP」という名前をセットしておくとdoBootstrap関数は呼ばれない。<br><br>
+代わりにangular.resumeBootstrap(extraModules)という、後から手動でdoBootstrap関数を実行できる関数が生える。</p>
+
+<p>サービスのファクトリー関数を見ると、名前の最後に&quot;Provider&quot;をつけて再起的にinvokeしていることが分かる。</p>
+<div class="highlight"><pre><span class="nx">createInternalInjector</span><span class="p">(</span><span class="nx">instanceCache</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">servicename</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">provider</span> <span class="o">=</span> <span class="nx">providerInjector</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">servicename</span> <span class="o">+</span> <span class="nx">providerSuffix</span><span class="p">);</span> <span class="c1">// providersuffix == &quot;Provider&quot;</span>
+  <span class="k">return</span> <span class="nx">instanceInjector</span><span class="p">.</span><span class="nx">invoke</span><span class="p">(</span><span class="nx">provider</span><span class="p">.</span><span class="nx">$get</span><span class="p">,</span> <span class="nx">provider</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+<p>doBootstrap関数では、最終的にScopeインスタンスの$apply関数が実行される。</p>
+<div class="highlight"><pre><span class="nx">injector</span><span class="p">.</span><span class="nx">invoke</span><span class="p">([</span><span class="s1">&#39;$rootScope&#39;</span><span class="p">,</span> <span class="s1">&#39;$rootElement&#39;</span><span class="p">,</span> <span class="s1">&#39;$compile&#39;</span><span class="p">,</span> <span class="s1">&#39;$injector&#39;</span><span class="p">,</span> <span class="s1">&#39;$animate&#39;</span><span class="p">,</span>
+  <span class="kd">function</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">compile</span><span class="p">,</span> <span class="nx">injector</span><span class="p">,</span> <span class="nx">animate</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">scope</span><span class="p">.</span><span class="nx">$apply</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">element</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span><span class="s1">&#39;$injector&#39;</span><span class="p">,</span> <span class="nx">injector</span><span class="p">);</span>
+      <span class="nx">compile</span><span class="p">(</span><span class="nx">element</span><span class="p">)(</span><span class="nx">scope</span><span class="p">);</span>
+    <span class="p">});</span>
+  <span class="p">}]</span>
+<span class="p">);</span>
+</pre></div>
+<p>$apply関数でやっていることは引数に渡した関数を実行すること。<br><br>
+ようやくcompile関数にたどり着いた。</p>
+
+<p>compile関数で、引数に渡されたelementから再帰的にHTML要素を舐め、HTML要素にセットした「ng-*」属性名からディレクティブを呼び出し、ディレクティブのcompile関数で属性値を$eval関数で処理する。  </p>
+
+<p>例えば、ng-init属性に対応するngInitDirectiveディレクティブはこのようになっている。</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">ngInitDirective</span> <span class="o">=</span> <span class="nx">ngDirective</span><span class="p">({</span>
+  <span class="nx">priority</span><span class="o">:</span> <span class="mi">450</span><span class="p">,</span>
+  <span class="nx">compile</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="nx">pre</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">element</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">scope</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="nx">attrs</span><span class="p">.</span><span class="nx">ngInit</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">};</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+<p>ng-controllerやng-modelもcompile関数でディレクティブを集め、返却されたクロージャで各ディレクティブをコンパイルしていく。<br><br>
+ここでまず、「ng-init=&quot;message = &#39;nothing&#39;」といった初期化のための属性値はAngularが持つ構文解析にかけられ、対応するScopeインスタンスにセットされる。</p>
+
+<p>実際に値をセットしているのは、10238行目のsetter関数で行われる。<br><br>
+最初の引数の「obj」にはScopeインスタンスが入っている。</p>
+<div class="highlight"><pre><span class="c1">//////////////////////////////////////////////////</span>
+<span class="c1">// Parser helper functions</span>
+<span class="c1">//////////////////////////////////////////////////</span>
+
+<span class="kd">function</span> <span class="nx">setter</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">setValue</span><span class="p">,</span> <span class="nx">fullExp</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">//needed?</span>
+  <span class="nx">options</span> <span class="o">=</span> <span class="nx">options</span> <span class="o">||</span> <span class="p">{};</span>
+
+  <span class="kd">var</span> <span class="nx">element</span> <span class="o">=</span> <span class="nx">path</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">),</span> <span class="nx">key</span><span class="p">;</span>
+
+  <span class="c1">// カット</span>
+
+  <span class="nx">key</span> <span class="o">=</span> <span class="nx">ensureSafeMemberName</span><span class="p">(</span><span class="nx">element</span><span class="p">.</span><span class="nx">shift</span><span class="p">(),</span> <span class="nx">fullExp</span><span class="p">);</span>
+  <span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">setValue</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nx">setValue</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>コントローラについて、$ControllerProviderが返したクロージャが実行され、インスタンス化される。</p>
+<div class="highlight"><pre><span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">expression</span><span class="p">,</span> <span class="nx">locals</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">instance</span><span class="p">,</span> <span class="nx">match</span><span class="p">,</span> <span class="nx">constructor</span><span class="p">,</span> <span class="nx">identifier</span><span class="p">;</span>
+
+  <span class="k">if</span><span class="p">(</span><span class="nx">isString</span><span class="p">(</span><span class="nx">expression</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">match</span> <span class="o">=</span> <span class="nx">expression</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="nx">CNTRL_REG</span><span class="p">),</span>
+          <span class="nx">constructor</span> <span class="o">=</span> <span class="nx">match</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+          <span class="nx">identifier</span> <span class="o">=</span> <span class="nx">match</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+    <span class="nx">expression</span> <span class="o">=</span> <span class="nx">controllers</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">constructor</span><span class="p">)</span>
+      <span class="o">?</span> <span class="nx">controllers</span><span class="p">[</span><span class="nx">constructor</span><span class="p">]</span>
+      <span class="o">:</span> <span class="nx">getter</span><span class="p">(</span><span class="nx">locals</span><span class="p">.</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">constructor</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span> <span class="o">||</span> <span class="nx">getter</span><span class="p">(</span><span class="nx">$window</span><span class="p">,</span> <span class="nx">constructor</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+
+    <span class="nx">assertArgFn</span><span class="p">(</span><span class="nx">expression</span><span class="p">,</span> <span class="nx">constructor</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="nx">instance</span> <span class="o">=</span> <span class="nx">$injector</span><span class="p">.</span><span class="nx">instantiate</span><span class="p">(</span><span class="nx">expression</span><span class="p">,</span> <span class="nx">locals</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">identifier</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">locals</span> <span class="o">&amp;&amp;</span> <span class="k">typeof</span> <span class="nx">locals</span><span class="p">.</span><span class="nx">$scope</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">throw</span> <span class="nx">minErr</span><span class="p">(</span><span class="s1">&#39;$controller&#39;</span><span class="p">)(</span><span class="s1">&#39;noscp&#39;</span><span class="p">,</span>
+          <span class="s2">&quot;Cannot export controller &#39;{0}&#39; as &#39;{1}&#39;! No $scope object provided via `locals`.&quot;</span><span class="p">,</span>
+          <span class="nx">constructor</span> <span class="o">||</span> <span class="nx">expression</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">identifier</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nx">locals</span><span class="p">.</span><span class="nx">$scope</span><span class="p">[</span><span class="nx">identifier</span><span class="p">]</span> <span class="o">=</span> <span class="nx">instance</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">instance</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+<p>実際にインスタンス化されるのは「$injector.instantiate(expression, locals)」の行だが、ここでユーザーが定義したコントローラーのコンストラクタを実行した結果が返る。<br><br>
+新規で作ったFunctionオブジェクトをthisとしてコントローラーのコンストラクタを実行するのが面白い。</p>
+<div class="highlight"><pre><span class="kd">function</span> <span class="nx">invoke</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">locals</span><span class="p">){</span>
+  <span class="kd">var</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[],</span>
+      <span class="nx">$inject</span> <span class="o">=</span> <span class="nx">annotate</span><span class="p">(</span><span class="nx">fn</span><span class="p">),</span>
+      <span class="nx">length</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span>
+      <span class="nx">key</span><span class="p">;</span>
+
+  <span class="k">for</span><span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">length</span> <span class="o">=</span> <span class="nx">$inject</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">key</span> <span class="o">=</span> <span class="nx">$inject</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">key</span> <span class="o">!==</span> <span class="s1">&#39;string&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">throw</span> <span class="nx">$injectorMinErr</span><span class="p">(</span><span class="s1">&#39;itkn&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;Incorrect injection token! Expected service name as string, got {0}&#39;</span><span class="p">,</span> <span class="nx">key</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="nx">args</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span>
+        <span class="nx">locals</span> <span class="o">&amp;&amp;</span> <span class="nx">locals</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+        <span class="o">?</span> <span class="nx">locals</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+        <span class="o">:</span> <span class="nx">getService</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+        <span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">fn</span><span class="p">.</span><span class="nx">$inject</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// this means that we must be an array.</span>
+    <span class="nx">fn</span> <span class="o">=</span> <span class="nx">fn</span><span class="p">[</span><span class="nx">length</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="c1">// http://jsperf.com/angularjs-invoke-apply-vs-switch</span>
+  <span class="c1">// #5388</span>
+  <span class="k">return</span> <span class="nx">fn</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">args</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">instantiate</span><span class="p">(</span><span class="nx">Type</span><span class="p">,</span> <span class="nx">locals</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">Constructor</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{},</span>
+      <span class="nx">instance</span><span class="p">,</span> <span class="nx">returnedValue</span><span class="p">;</span>
+
+  <span class="c1">// Check if Type is annotated and use just the given function at n-1 as parameter</span>
+  <span class="c1">// e.g. someModule.factory(&#39;greeter&#39;, [&#39;$window&#39;, function(renamed$window) {}]);</span>
+  <span class="nx">Constructor</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="p">(</span><span class="nx">isArray</span><span class="p">(</span><span class="nx">Type</span><span class="p">)</span> <span class="o">?</span> <span class="nx">Type</span><span class="p">[</span><span class="nx">Type</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">:</span> <span class="nx">Type</span><span class="p">).</span><span class="nx">prototype</span><span class="p">;</span>
+  <span class="nx">instance</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Constructor</span><span class="p">();</span>
+  <span class="nx">returnedValue</span> <span class="o">=</span> <span class="nx">invoke</span><span class="p">(</span><span class="nx">Type</span><span class="p">,</span> <span class="nx">instance</span><span class="p">,</span> <span class="nx">locals</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="nx">isObject</span><span class="p">(</span><span class="nx">returnedValue</span><span class="p">)</span> <span class="o">||</span> <span class="nx">isFunction</span><span class="p">(</span><span class="nx">returnedValue</span><span class="p">)</span> <span class="o">?</span> <span class="nx">returnedValue</span> <span class="o">:</span> <span class="nx">instance</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>「ng-model」はNgModelControllerとしてインスタンス化され、属性値をwatchする。<br><br>
+モデルに指定した変数の値が変更された場合、コントローラーの$viewValueに値をセットして再描画する。<br><br>
+これがモデルからビューへのバインディングになっているわけか。</p>
+<div class="highlight"><pre><span class="nx">$scope</span><span class="p">.</span><span class="nx">$watch</span><span class="p">(</span><span class="kd">function</span> <span class="nx">ngModelWatch</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">ngModelGet</span><span class="p">(</span><span class="nx">$scope</span><span class="p">);</span>
+
+    <span class="c1">// if scope model value and ngModel value are out of sync</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">$modelValue</span> <span class="o">!==</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">formatters</span> <span class="o">=</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$formatters</span><span class="p">,</span>
+      <span class="nx">idx</span> <span class="o">=</span> <span class="nx">formatters</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+
+      <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$modelValue</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+      <span class="k">while</span><span class="p">(</span><span class="nx">idx</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">value</span> <span class="o">=</span> <span class="nx">formatters</span><span class="p">[</span><span class="nx">idx</span><span class="p">](</span><span class="nx">value</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">$viewValue</span> <span class="o">!==</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$viewValue</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+        <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$render</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
+<span class="p">});</span>
+</pre></div>
+<p>要素が「input type=&quot;text&quot;」の場合、textInputTypeというディレクティブが呼ばれる。<br><br>
+キー入力を監視し、Scopeインスタンスの$apply関数でコントローラーの$setViewValue関数に新しい値を渡して再描画させる。<br><br>
+他のinput要素などの再描画ロジックの違いはここで吸収し、ctrl.$renderに関数をセットしている。</p>
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">listener</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">composing</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">element</span><span class="p">.</span><span class="nx">val</span><span class="p">();</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">toBoolean</span><span class="p">(</span><span class="nx">attr</span><span class="p">.</span><span class="nx">ngTrim</span> <span class="o">||</span> <span class="s1">&#39;T&#39;</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">value</span> <span class="o">=</span> <span class="nx">trim</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">$viewValue</span> <span class="o">!==</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">scope</span><span class="p">.</span><span class="nx">$apply</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$setViewValue</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+<p>「ng-pattern」という属性値をセットしておくと、バリデーションとしてセットできることも分かる。</p>
+<div class="highlight"><pre><span class="c1">// pattern validator</span>
+<span class="kd">var</span> <span class="nx">pattern</span> <span class="o">=</span> <span class="nx">attr</span><span class="p">.</span><span class="nx">ngPattern</span><span class="p">,</span>
+    <span class="nx">patternValidator</span><span class="p">,</span>
+    <span class="nx">match</span><span class="p">;</span>
+
+<span class="kd">var</span> <span class="nx">validate</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">regexp</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">$isEmpty</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="o">||</span> <span class="nx">regexp</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">value</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$setValidity</span><span class="p">(</span><span class="s1">&#39;pattern&#39;</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">ctrl</span><span class="p">.</span><span class="nx">$setValidity</span><span class="p">(</span><span class="s1">&#39;pattern&#39;</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+    <span class="k">return</span> <span class="kc">undefined</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+<p>「{{getMessage()}}」で表現している箇所に関しては、TextInterpolateDirectiveのtextInterpolateLinkFn関数でテキストノードにリスナー関数をバインディングする。<br><br>
+リスナー関数では「{{}}」を評価した結果を返し、値に変更があればテキストノードの値を書き換える。<br><br>
+$scope.messageの値が変わったら、$scope.getMessage()の結果も変わるので、「{{}}」の部分が変更される。<br><br>
+これでモデルからビューへのバインディングの仕組みが分かった。</p>
+<div class="highlight"><pre><span class="kd">function</span> <span class="nx">textInterpolateLinkFn</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">parent</span> <span class="o">=</span> <span class="nx">node</span><span class="p">.</span><span class="nx">parent</span><span class="p">(),</span>
+      <span class="nx">bindings</span> <span class="o">=</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span><span class="s1">&#39;$binding&#39;</span><span class="p">)</span> <span class="o">||</span> <span class="p">[];</span>
+  <span class="nx">bindings</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">interpolateFn</span><span class="p">);</span>
+  <span class="nx">safeAddClass</span><span class="p">(</span><span class="nx">parent</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span><span class="s1">&#39;$binding&#39;</span><span class="p">,</span> <span class="nx">bindings</span><span class="p">),</span> <span class="s1">&#39;ng-binding&#39;</span><span class="p">);</span>
+  <span class="nx">scope</span><span class="p">.</span><span class="nx">$watch</span><span class="p">(</span><span class="nx">interpolateFn</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">interpolateFnWatchAction</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">node</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">nodeValue</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+<p>最後に、$rootScope.$digest関数が呼ばれ、Scopeの階層を下りながらScopeのwatch対象に対してリスナー関数を実行していく。<br><br>
+$scope.messageには&quot;nothing&quot;という文字列が新しく入っているので、変更後の値として扱われる。</p>
+<div class="highlight"><pre><span class="k">if</span> <span class="p">((</span><span class="nx">watchers</span> <span class="o">=</span> <span class="nx">current</span><span class="p">.</span><span class="nx">$$watchers</span><span class="p">))</span> <span class="p">{</span>
+  <span class="c1">// process our watches</span>
+  <span class="nx">length</span> <span class="o">=</span> <span class="nx">watchers</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="nx">length</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="p">{</span>
+      <span class="nx">watch</span> <span class="o">=</span> <span class="nx">watchers</span><span class="p">[</span><span class="nx">length</span><span class="p">];</span>
+      <span class="c1">// Most common watches are on primitives, in which case we can short</span>
+      <span class="c1">// circuit it with === operator, only when === fails do we use .equals</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">watch</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">((</span><span class="nx">value</span> <span class="o">=</span> <span class="nx">watch</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">current</span><span class="p">))</span> <span class="o">!==</span> <span class="p">(</span><span class="nx">last</span> <span class="o">=</span> <span class="nx">watch</span><span class="p">.</span><span class="nx">last</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+            <span class="o">!</span><span class="p">(</span><span class="nx">watch</span><span class="p">.</span><span class="nx">eq</span>
+              <span class="o">?</span> <span class="nx">equals</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">last</span><span class="p">)</span>
+              <span class="o">:</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">value</span> <span class="o">==</span> <span class="s1">&#39;number&#39;</span> <span class="o">&amp;&amp;</span> <span class="k">typeof</span> <span class="nx">last</span> <span class="o">==</span> <span class="s1">&#39;number&#39;</span>
+                <span class="o">&amp;&amp;</span> <span class="nb">isNaN</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nb">isNaN</span><span class="p">(</span><span class="nx">last</span><span class="p">))))</span> <span class="p">{</span>
+          <span class="nx">dirty</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+          <span class="nx">lastDirtyWatch</span> <span class="o">=</span> <span class="nx">watch</span><span class="p">;</span>
+          <span class="nx">watch</span><span class="p">.</span><span class="nx">last</span> <span class="o">=</span> <span class="nx">watch</span><span class="p">.</span><span class="nx">eq</span> <span class="o">?</span> <span class="nx">copy</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="o">:</span> <span class="nx">value</span><span class="p">;</span>
+          <span class="nx">watch</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="p">((</span><span class="nx">last</span> <span class="o">===</span> <span class="nx">initWatchVal</span><span class="p">)</span> <span class="o">?</span> <span class="nx">value</span> <span class="o">:</span> <span class="nx">last</span><span class="p">),</span> <span class="nx">current</span><span class="p">);</span>
+
+          <span class="c1">// カット</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>これでbootstrap関数で実行される処理は終わり。  </p>
+
+<p>長い・・！フレームワークの特性上、ロード時にいろいろやってるのは想像つくけど、これはすごい。<br><br>
+クロージャを上手く使ってキャプチャすることでなるべくプロトタイプに値を持たせずに引き回してたり、全体を見たときに作られるインスタンスがとても少ない。<br><br>
+Scopeという概念がHTMLの階層とマッチしていて、値の変更時のキャプチャリング/バブリングを上手く抽象化していることが分かる。<br><br>
+でもって、Scopeはその階層でのハンドラや独自処理をプロトタイプに書けると。<br><br>
+invokeの使い方はAngular使わないコードでも参考になるなー。<br><br>
+あと、GoogleClosureLibraryを使ったことのある人だったら見覚えのある実装がいくつかあったりしてニヤッとしたり。</p>
+
+<p>これで2way bindingの仕組みが分かったので、AngularJSと少し仲良くなれた気がする。<br><br>
+次はDIともうちょっとディレクティブをちゃんと追ってみよう。</p>
+</article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. 部屋とYシャツとJavaScript. Ruby, JavaScript, Java & Android, Objective-C & iOS. freeeという会計スタートアップにjoinしました.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013-2015 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>

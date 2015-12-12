@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>Hubotを導入したらレビューの敷居が下がった話 - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1449932769" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2014-04-06</div><article class="post"><h1>Hubotを導入したらレビューの敷居が下がった話</h1>
+
+<p>ウチの会社ではHipchatとGitHubを開発のコミュニケーションの中心にしている。 <br>
+だんだん人も増えてくると、以前よりプルリクの数がそれだけ増えて、レビューで1日終わってしまう人がでてきた。</p>
+
+<p>昔から仕様を知っている人にレビューが投げられがちで集中しやすいとかは他の会社でもよくある話しだと思う。 <br>
+レビューは自分のタスクと同様に大事だけど、それで自分のタスクが全くできなくなったり、新しく入ってきた人がレビューする機会を失うのはあまりよくない。<br>
+というのもあって、Hubotを立ててみてプルリクのレビュアーをランダムで振れるようにしてみた。</p>
+
+<p>Hubotというのはご存知Hipchatのbotとして動くプログラムで、botにコマンドを指定してリモート実行させたり、特定の文字列に反応させたりということがHipchat上でできる。<br><br>
+CoffeeScriptでスクリプト書けるのでとてもお手軽。</p>
+
+<p>sushiという名前のHubotを立てて、GitHubのプルリクのURLをbotに投げるとランダムでレビューお願いします！とメンションを飛ばすようにしてみた。</p>
+<div class="highlight"><pre>xxx   <span class="p">|</span> @sushi https://github.com/AAA/BBB/pull/999
+sushi <span class="p">|</span> @yyy オナシャス！ https://github.com/AAA/BBB/pull/999
+</pre></div>
+<p>GitHubから流れてくるログから自動でメンションを飛ばさないのは、大きな機能追加などは特定の人にレビューしてもらいたいことがあるので、そこは自分で打つ。assignまで自動でできる美しいんだけどそこまではまだ出来てない。<br>
+誰にレビューしてもらおうかなと考える必要もないし、レビューの偏りも結構解消されていい感じになった。</p>
+
+<p>スタートアップはどんどん人が増えるので、新しく入った人にもレビューが振られることで早くプロジェクトになじめるとかそういうのは大きいと思う。</p>
+
+<p>何より、みんなが楽しんでレビューを振れるようになったのがよかった。<br>
+pushされたブランチを見て、「俺に来るな、来るなよー・・来たーマジかorz・・」とか振られる側もドキドキできて楽しい。</p>
+
+<p>ランダムレビュー以外にも、みんなの名前打ったりするとその人のおもしろ発言が流れたり楽しい感じになってる。</p>
+
+<p>これまで自分のローカルで動かしてたのでw ちょっと旅行に行ったときは動いてなくて寂しかったと言ってもらえたのは嬉しかった。<br>
+普段の開発フローに定着できたので、ちゃんと運用していこうと思う。</p>
+
+<p>方針を決めて守ったり対面のミーティングでなんとかしていけることもあるけど、動く仕組みを作ることで一段上の解決ができることもあるよなーと1つ勉強になりました。</p>
+</article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. 部屋とYシャツとJavaScript. Ruby, JavaScript, Java & Android, Objective-C & iOS. freeeという会計スタートアップにjoinしました.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013-2015 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>

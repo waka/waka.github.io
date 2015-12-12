@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>yo_waka's blog</title>
+  <subtitle>Fragment of code</subtitle>
+  <id>http://waka.github.io</id>
+  <link href="http://waka.github.io"/>
+  <updated>2015-12-12T00:00:00+0000</updated>
+  <author>
+    <name>yo_waka</name>
+  </author>
+  <entry>
+    <title>最近のnpmライブラリ書くときのpackage.json</title>
+    <link rel="alternate" href="http://waka.github.io/2015/12/12/npm_setup.html"/>
+    <id>http://waka.github.io/2015/12/12/npm_setup.html</id>
+    <published>2015-12-12T00:00:00+0000</published>
+    <updated>2015-12-13T00:05:56+0900</updated>
+    <author>
+      <name>yo_waka</name>
+    </author>
+    <content type="html">&lt;h1&gt;最近のnpmライブラリ書くときのpackage.json&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href="http://qiita.com/advent-calendar/2015/nodejs"&gt;Node.js Advent Calendar 2015&lt;/a&gt; 12日目の記事です&lt;/p&gt;
+
+&lt;p&gt;最近はES2015で書き出すのが普通になってきたので、初期構成がだいたい似たような感じになってる。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="s2"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;lt;NAME&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="s2"&gt;&amp;quot;description&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;lt;DESCRIPTION&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="s2"&gt;&amp;quot;version&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;0.1.0&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="s2"&gt;&amp;quot;repository&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;git&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;url&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;lt;GITHUB URL&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="s2"&gt;&amp;quot;main&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;./lib/index.js&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="s2"&gt;&amp;quot;files: [&amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;lib&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;],&lt;/span&gt;
+&lt;span class="s2"&gt;  &amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;directories&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;: {&lt;/span&gt;
+&lt;span class="s2"&gt;    &amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;test&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;: &amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;test&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+&lt;span class="s2"&gt;  },&lt;/span&gt;
+&lt;span class="s2"&gt;  &amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;devDependencies&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;: {&lt;/span&gt;
+&lt;span class="s2"&gt;    &amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;babel&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;core&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;: &amp;quot;&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;,&lt;/span&gt;
+&lt;span class="s2"&gt;    &amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;babel&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;plugin&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;transform&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;es2015&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;modules&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;commonjs&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;: &amp;quot;&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;,&lt;/span&gt;
+&lt;span class="s2"&gt;    &amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;babel&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;preset&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;es2015&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;: &amp;quot;&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;,&lt;/span&gt;
+&lt;span class="s2"&gt;    &amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;mocha&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;: &amp;quot;&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;,&lt;/span&gt;
+&lt;span class="s2"&gt;    &amp;quot;&lt;/span&gt;&lt;span class="nx"&gt;power&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nx"&gt;assert&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;: &amp;quot;&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="err"&gt;&amp;quot;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;srcにES2015で書いて、Babelでlib下に吐き出す。&lt;br&gt;
+filesにlibだけを書いておけば成果物のサイズが小さくなるのでおすすめ。&lt;/p&gt;
+
+&lt;p&gt;.gitignoreにはlibを指定しておき、npmで公開するもの（ES5）とgithubで公開するもの（ES2015）は分ける。&lt;/p&gt;
+
+&lt;p&gt;また、テストはmochaの場合、最近はbabel-coreがあればES2015でテストを書くことが可能になっている。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="s"&gt;&amp;quot;script&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="s"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;mocha --require babel-core/register --recursive&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</content>
+  </entry>
+  <entry>
+    <title>RailsのAsset PipelineとPrecompileをNode.jsのみで処理できるgulp-sprocketsを作った</title>
+    <link rel="alternate" href="http://waka.github.io/2015/11/25/gulp_sprockets.html"/>
+    <id>http://waka.github.io/2015/11/25/gulp_sprockets.html</id>
+    <published>2015-11-25T00:00:00+0000</published>
+    <updated>2015-12-13T00:05:56+0900</updated>
+    <author>
+      <name>yo_waka</name>
+    </author>
+    <content type="html">&lt;h1&gt;RailsのAsset PipelineとPrecompileをNode.jsのみで処理できるgulp-sprocketsを作った&lt;/h1&gt;
+
+&lt;p&gt;仕事ではRailsアプリを書いていて、JSやCSSなどのフロントエンドはRailsのAsset Pipelineの仕組みに則ってビルドしてる。&lt;/p&gt;
+
+&lt;p&gt;普通にRailsアプリ作ってると普段&lt;a href="https://github.com/sstephenson/sprockets"&gt;Sprockets&lt;/a&gt;について特に意識しないと思う。&lt;br&gt;&lt;br&gt;
+Sprocketsはそこが凄くて、あまり考えなくてもドキュメント通りにやってれば、必要なAssetを結合できて、リリース時は変更がなければブラウザキャッシュから、変更があれば&lt;br&gt;
+新しく読み込まれるみたいなことをやってくれる。&lt;/p&gt;
+
+&lt;p&gt;なんだけど、もうそろそろ新しい機能はES2015で書きたいよねという人が増えてきた。&lt;/p&gt;
+
+&lt;p&gt;とはいえSprocketsは独自のディレクティブ以外は使えなくて、SprocketsWayから外れると途端に脆い。&lt;br&gt;
+ES2015 Modulesを使う場合、gulp&amp;amp;babelなどでES5でコンパイルされたJavaScriptファイルをSprocketsが解釈できるasset pathに吐いて、asset pipelineの上に乗せ直す必要がある。&lt;br&gt;
+エイヤでやっちゃえばいいじゃんとも思うが、規模がデカくなると一気にやるのは時間もかかるし、他の人も開発しているので中々に難しい。上手く区切りながら移行を進めていく必要がある。&lt;/p&gt;
+
+&lt;p&gt;そうなると、移行中はSprocketsによるビルドの仕組みとgulp両方覚える必要がある。&lt;br&gt;
+でないとデプロイ時にアセット周りで不具合が起きたときに追えない。&lt;br&gt;
+結構こいつが問題で、両方追える人増やすのも大変だし、できればより汎用的なツールであるgulpだけでフロントエンドをビルドできるようにしたいなと思い始めた。&lt;/p&gt;
+
+&lt;p&gt;その他にも、特殊な事情でPrecompile時のRuby版Sassのコンパイルが遅かったり、もうCoffeeScriptファイルが多すぎてdevelopment環境で初回ビルドが遅すぎるというのもやりたくなった理由だったりする。&lt;/p&gt;
+
+&lt;p&gt;XXX-railsなどGemで読んでいるフロントエンド系ライブラリも気づけば作者が全然アップデートしてくれなくなったものもあるし、依存ライブラリの定義がGemfileやpackage.json、Bowerfileなど散らばるのもよくない。全てpackage.jsonで管理したい。&lt;/p&gt;
+
+&lt;h2&gt;Sprocketsがやっていること&lt;/h2&gt;
+
+&lt;p&gt;ざっくりいうと5つ。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;asset_pathやimage_urlなどのヘルパー関数を組み込む&lt;/li&gt;
+&lt;li&gt;「//= foo」や「/*= bar */」などのディレクティブを解釈してよしなにconcat&lt;/li&gt;
+&lt;li&gt;CoffeeScriptやScssやJSTをコンパイル&lt;/li&gt;
+&lt;li&gt;(Precompile時) concatしたファイルの内容からmd5ハッシュを作りファイル名につける&lt;/li&gt;
+&lt;li&gt;(Precompile時) ビルドした各ファイルの情報をmanifest.jsonに書き込む&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;最後のはprecompile時のみ必要な処理で、development時は不要。&lt;br&gt;
+これらをNode.jsの世界で実現できれば、gulpfileのみでRailsのフロントエンドなファイルをビルドすることが可能になるはず。&lt;/p&gt;
+
+&lt;h2&gt;gulpだけでなんとかできない？&lt;/h2&gt;
+
+&lt;p&gt;探してみると過去にSprockets脱却にチャレンジしている人は結構いる。&lt;br&gt;
+最後のは弊社の若手フロントエンドヤンキーによるスライド。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://qiita.com/joker1007/items/9068e223744b3ac8c6dd"&gt;Sprockets再考 モダンなJSのエコシステムとRailsのより良い関係を探す&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://sssslide.com/speakerdeck.com/katryo/sprocketsjue-tinitiao-zhan-sita"&gt;Sprockets絶ちに挑戦した&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.slideshare.net/masatonoguchi169/sprockets-49965435"&gt;Sprocketsを捨てたい&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;manifest.jsonについてはjoker1007さんの&lt;a href="https://github.com/joker1007/gulp-rev-rails-manifest"&gt;gulp-rev-rails-manifest&lt;/a&gt;を使えば解決できそう。  &lt;/p&gt;
+
+&lt;p&gt;上のスライドにも書かれている、SCSS内に書かれたasset_pathやimage_urlなどのSprocketsが提供しているヘルパー関数をどう解決するかが難関っぽい。&lt;br&gt;
+Precompile時はmd5ハッシュ値を使ったファイル名に変換するなどしないと画像を読み込めなくなってしまう。。&lt;br&gt;
+SprocketsではSassコンパイラにカスタム関数として定義してコンパイル時に変換している。&lt;/p&gt;
+
+&lt;p&gt;「//=require XXX」などのディレクティブについてもCommonJSやES2015 Modulesに全て置き換えるのが前提となっている。&lt;br&gt;
+規模が大きいとその書き換えが大変なので、できればそのまま使えるようにしたい。&lt;/p&gt;
+
+&lt;p&gt;ソリューションが必要だ！&lt;/p&gt;
+
+&lt;h2&gt;全部解決できるgulpプラグイン作った&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/waka/gulp-sprockets"&gt;gulp-sprockets&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;詳しくはREADMEとsample下をどうぞ。&lt;br&gt;
+移行後はサクッと外すだけにしたかったので、各種処理を提供するgulpストリームとして作った。&lt;br&gt;
+実際社内のRailsアプリで試してAsset PipelineのOn/Off両方で動いているのが確認できた。&lt;/p&gt;
+
+&lt;p&gt;こんな感じでgulpでビルドするとSprocketsでビルドしたときと同等の成果物ができる。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kr"&gt;import&lt;/span&gt; &lt;span class="nx"&gt;sprockets&lt;/span&gt; &lt;span class="nx"&gt;from&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;gulp-sprockets&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="nx"&gt;gulp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;task&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;build:css&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;gulp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;src&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;app/assets/stylesheets/*.css&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;pipe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;sprockets&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;css&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+    &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;pipe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;gulpIf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;env&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;NODE_ENV&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;release&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;sprockets&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;precompile&lt;/span&gt;&lt;span class="p"&gt;()))&lt;/span&gt;
+    &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;pipe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;gulp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;dest&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;destPath&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Sprocketsディレクティブは使ってない、でもPrecompileは行いたい場合はプラグイン外してprecompileプラグインだけ実行すればmanifest.jsonに書き出されます。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nx"&gt;gulp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;task&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;build:es2015&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;gulp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;src&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;app/assets/javascripts/*.es&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;pipe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;babel&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+    &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;pipe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;gulpIf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;env&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;NODE_ENV&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;release&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nx"&gt;sprockets&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;precompile&lt;/span&gt;&lt;span class="p"&gt;()))&lt;/span&gt;
+    &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;pipe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;gulp&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;dest&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;destPath&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;ヘルパー関数はそういえばnode-sassもv3からカスタム関数定義できることを思い出したのでコンパイラに定義した。&lt;/p&gt;
+
+&lt;p&gt;ディレクティブは最近はEsprimaやPostCSSを使うとコメント部をASTから簡単に取ってこれるので取得したコメントから雑に解釈させてる。&lt;/p&gt;
+
+&lt;p&gt;コンパイル処理もサポートしたので、ES2015で書いたファイルもrequireディレクティブで読み込めるとかそういうのも出来そう。&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>ReactiveCocoa Tokyoで発表した</title>
+    <link rel="alternate" href="http://waka.github.io/2014/10/26/reactivecocoa_tokyo_freee.html"/>
+    <id>http://waka.github.io/2014/10/26/reactivecocoa_tokyo_freee.html</id>
+    <published>2014-10-26T00:00:00+0000</published>
+    <updated>2015-12-13T00:05:56+0900</updated>
+    <author>
+      <name>yo_waka</name>
+    </author>
+    <content type="html">&lt;h1&gt;ReactiveCocoa Tokyoで発表した&lt;/h1&gt;
+
+&lt;p&gt;先週になりますが、「&lt;a href="http://connpass.com/event/8680/"&gt;ReactiveCocoa Tokyo&lt;/a&gt;というイベントがあり、そこでfreee社での導入の経緯やMVVMでのReactiveCocoaの使い方について話してきました。&lt;/p&gt;
+
+&lt;p&gt;&lt;iframe src="//www.slideshare.net/slideshow/embed_code/40422528" width="425" height="355" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen&gt; &lt;/iframe&gt; &lt;div style="margin-bottom:5px"&gt; &lt;strong&gt; &lt;a href="//www.slideshare.net/yo_waka/reactivecocoa-tokyo" title="freee社でのReactiveCocoa活用例" target="_blank"&gt;freee社でのReactiveCocoa活用例&lt;/a&gt; &lt;/strong&gt; from &lt;strong&gt;&lt;a href="//www.slideshare.net/yo_waka" target="_blank"&gt;yo_waka &lt;/a&gt;&lt;/strong&gt; &lt;/div&gt;&lt;/p&gt;
+
+&lt;p&gt;ReactiveCocoaは役割上ロックインされがちで、そこをなるべくゆるやかに導入していくにはというのが ninjinkunさんの発表に対して、ロックインされると各レイヤに統一感出ていいよと、対比ぽい感じができたのでよかったです。&lt;/p&gt;
+
+&lt;p&gt;ReactiveCocoaの魅力は、MVVMのコンポーネント間のインターフェースを統一できること、またアプリ固有の非同期処理や入力処理を統一的なインターフェースでラップできるフレームワークとして使えることです。&lt;br&gt;
+自分が知る限りでは上記のことをやるならReactiveCocoaが一番よくできていてまた開発も活発だと思います。&lt;/p&gt;
+
+&lt;p&gt;@ikesyoさんに懇親会で聞いた限りだと、Swiftブランチは実運用にはもうちょっと時間がかかりそうだなという印象です。でも粛々と開発は進んでいるようなので期待。&lt;/p&gt;
+
+&lt;p&gt;終わった後、同日開催の&lt;a href="http://connpass.com/event/8629/"&gt;iOS/Swift勉強会@ヤフー&lt;/a&gt;をピザとビール片手にみんなで眺めたというのもちょっと新鮮で楽しかった。&lt;br&gt;
+会場の迷惑にならないので思う存分ワイワイできるw&lt;/p&gt;
+
+&lt;p&gt;freee社で50人規模の勉強会を開催するのは初めてだったのですが、当日欠席する人も思ったより少なくてよかった。これをきっかけにReactiveCocoaの導入事例が増えるといいなあ。&lt;br&gt;
+大阪から駆けつけてくれた @ikesyoさん、主催の @ninjinkunさん、社内でいろいろ調整してくれた @yonekawaさん、トップバッターで話してくれた @tinpayさん、LT発表者の皆様ありがとうございました！&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="/assets/images/rac_01.jpg" /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="/assets/images/rac_02.jpg" /&gt;&lt;/p&gt;
+
+&lt;p&gt;@ymrl 写真拝借しました。当日はありがとうございました。&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>volley（サブプロジェクト）のbuildToolsVersionをafterEvaluateで上書く</title>
+    <link rel="alternate" href="http://waka.github.io/2014/7/19/gradle_module_build.html"/>
+    <id>http://waka.github.io/2014/7/19/gradle_module_build.html</id>
+    <published>2014-07-19T00:00:00+0000</published>
+    <updated>2015-12-13T00:05:56+0900</updated>
+    <author>
+      <name>yo_waka</name>
+    </author>
+    <content type="html">&lt;h1&gt;volley（サブプロジェクト）のbuildToolsVersionをafterEvaluateで上書く&lt;/h1&gt;
+
+&lt;p&gt;Android StudioがBetaになったので、0.8.2に上げようとしたらモジュールのビルドでハマった。&lt;/p&gt;
+
+&lt;p&gt;Android Studioのバージョンを上げるときは、build.gradleを弄る時でもある。&lt;br&gt;
+Betaに上げるからには最新版のGradleプラグインとAndroid SDKでコンパイル&amp;amp;ビルドできるようにしたい。  &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;// project/gradle/gradle-wrapper.properties&lt;/span&gt;
+&lt;span class="n"&gt;distributionUrl&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="err"&gt;\&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//services.gradle.org/distributions/gradle-1.12-all.zip&lt;/span&gt;
+
+&lt;span class="c1"&gt;// project/build.gradle&lt;/span&gt;
+&lt;span class="n"&gt;buildscript&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;repositories&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;mavenCentral&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;dependencies&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;classpath&lt;/span&gt; &lt;span class="p"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;android&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nl"&gt;build:gradle:&lt;/span&gt;&lt;span class="mf"&gt;0.12&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="p"&gt;&amp;#39;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// project/app/build.gradle&lt;/span&gt;
+&lt;span class="n"&gt;android&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;compileSdkVersion&lt;/span&gt; &lt;span class="mh"&gt;20&lt;/span&gt;
+  &lt;span class="n"&gt;buildToolsVersion&lt;/span&gt; &lt;span class="p"&gt;&amp;#39;&lt;/span&gt;&lt;span class="mf"&gt;20.0.0&lt;/span&gt;&lt;span class="p"&gt;&amp;#39;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;しかしビルドエラー。&lt;br&gt;&lt;br&gt;
+ルートプロジェクトのGradleプラグインのバージョンを0.12に上げると、buildToolsVersionが&amp;quot;19.1&amp;quot;以上でないとビルドできない。&lt;br&gt;&lt;br&gt;
+僕の環境では&lt;a href="https://android.googlesource.com/platform/frameworks/volley/"&gt;volley&lt;/a&gt;をモジュール（submodule）として組み込んでいて、compileSdkVersionとbuildToolsVersionがこのように指定されている。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;// modules/volley/build.gradle&lt;/span&gt;
+&lt;span class="n"&gt;android&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;compileSdkVersion&lt;/span&gt; &lt;span class="mh"&gt;19&lt;/span&gt;
+  &lt;span class="n"&gt;buildToolsVersion&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mh"&gt;19&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;volleyのソースを見る限りbuildToolsVersionを20に上げても特に問題なさそうなので、何とかしてビルドが実行される前にandroid()の中身を上書きしたい。&lt;br&gt;&lt;br&gt;
+と思って、&lt;a href="http://www.gradle.org/docs/1.12/userguide/userguide.html"&gt;Gradle User Guide&lt;/a&gt;を眺めていたら、Project.afterEvaluate()というものを見つけた。&lt;br&gt;
+Project.afterEvaluate()は、そのプロジェクトのビルドスクリプトが評価された後に実行されるらしい。まさにやりたいことと一致！&lt;/p&gt;
+
+&lt;p&gt;Gradleで分からないことがあれば、&lt;a href="http://www.gradle.org/docs/1.12/userguide/userguide.html"&gt;Gradle User Guide&lt;/a&gt;を見るのがオススメ。&lt;br&gt;
+Gradleのバージョンごとに用意されているので、使っているものに合わせて見るとよさげ（ちょくちょく変わったりするので）。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;subprojects&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;subproject&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;
+  &lt;span class="n"&gt;afterEvaluate&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;subproject&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;plugins&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;hasPlugin&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;android&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;library&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="n"&gt;android&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;compileSdkVersion&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;
+        &lt;span class="n"&gt;buildToolsVersion&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="mf"&gt;20.0.0&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;
+      &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;これで、モジュールとして組み込んでいるライブラリプロジェクト全てのcompileSdkVersionとbuildToolsVersionをアプリのそれと合わせることができる。&lt;br&gt;&lt;br&gt;
+もし特定のプロジェクトだけどうしても&amp;quot;19.1&amp;quot;でビルドしたければ、プロジェクトごとに指定すればおk。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;project&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;modules&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;volley&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;afterEvaluate&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;android&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="n"&gt;compileSdkVersion&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;
+      &lt;span class="n"&gt;buildToolsVersion&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="mf"&gt;19.1&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</content>
+  </entry>
+  <entry>
+    <title>渋谷JavaでRxJavaをAndroidアプリでどう活用するかという話をした</title>
+    <link rel="alternate" href="http://waka.github.io/2014/6/22/android_rxjava.html"/>
+    <id>http://waka.github.io/2014/6/22/android_rxjava.html</id>
+    <published>2014-06-22T00:00:00+0000</published>
+    <updated>2015-12-13T00:05:56+0900</updated>
+    <author>
+      <name>yo_waka</name>
+    </author>
+    <content type="html">&lt;h1&gt;渋谷JavaでRxJavaをAndroidアプリでどう活用するかという話をした&lt;/h1&gt;
+
+&lt;p&gt;少し、いやかなり前に渋谷Javaで「Android meets RxJava」というタイトルでLTしてきました。&lt;br&gt;
+スライド上げるのが遅くなってすいません。。。&lt;/p&gt;
+
+&lt;p&gt;&lt;iframe src="//www.slideshare.net/slideshow/embed_code/36154175" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen&gt; &lt;/iframe&gt; &lt;div style="margin-bottom:5px"&gt; &lt;strong&gt; &lt;a href="https://www.slideshare.net/yo_waka/rxjava-meets-android-java6" title="RxJava meets Android - 渋谷Java#6" target="_blank"&gt;RxJava meets Android - 渋谷Java#6&lt;/a&gt; &lt;/strong&gt; from &lt;strong&gt;&lt;a href="http://www.slideshare.net/yo_waka" target="_blank"&gt;yo_waka &lt;/a&gt;&lt;/strong&gt; &lt;/div&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="http://www.freee.co.jp/features/android"&gt;freeeのAndroidアプリ&lt;/a&gt;の開発前にチーム内で考えていたのが、テストの書きやすさを考慮するとどうしてもFragmentとAPIのやりとり含むビジネスロジックを切り分けたいというところで、&lt;br&gt;
+ViewController/ViewModel/Modelを上手く疎に分けられる仕組みが必要でした。&lt;/p&gt;
+
+&lt;p&gt;先行して開発していたiPhone版では、ReactiveCocoaを導入して上手くいったこともあり、FRPが出来るJavaのいいライブラリはないか探していたところ、上手くマッチしそうだったのがRxJavaでした。&lt;br&gt;&lt;br&gt;
+RxJavaのObservable、Subscriber、Func/Actionを使うことで、API呼び出し/モデルへの変換/画面への表示を上手く切り分けることが可能になります。&lt;br&gt;
+また、ViewModelのプロパティをFragmentからバインディングすることにより、データの状態をFragment側で管理する必要がなくなります。&lt;/p&gt;
+
+&lt;p&gt;Fragment側でデータの状態を持ってしまうと、いざそのテストを書く際にUIが必要になるので非常にめんどくさい。ViewModelまでで完結できればユニットテストだけでOK。&lt;br&gt;
+とはいえ、スライドにも書いてますが、ビジネスロジックがそこまで複雑でなければEventBusなどでやり取りするのもアリだと思います。&lt;/p&gt;
+
+&lt;p&gt;こういうFRPなライブラリをクライアントアプリで使うと、コアな部分で使うためどうしてもロックインを防げないのがデメリットです。&lt;br&gt;
+&lt;a href="http://www.reactive-streams.org/"&gt;Reactive Streams&lt;/a&gt;による標準化に期待。&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>Hubotを導入したらレビューの敷居が下がった話</title>
+    <link rel="alternate" href="http://waka.github.io/2014/4/6/codereview_with_hubot.html"/>
+    <id>http://waka.github.io/2014/4/6/codereview_with_hubot.html</id>
+    <published>2014-04-06T00:00:00+0000</published>
+    <updated>2015-12-13T00:05:56+0900</updated>
+    <author>
+      <name>yo_waka</name>
+    </author>
+    <content type="html">&lt;h1&gt;Hubotを導入したらレビューの敷居が下がった話&lt;/h1&gt;
+
+&lt;p&gt;ウチの会社ではHipchatとGitHubを開発のコミュニケーションの中心にしている。 &lt;br&gt;
+だんだん人も増えてくると、以前よりプルリクの数がそれだけ増えて、レビューで1日終わってしまう人がでてきた。&lt;/p&gt;
+
+&lt;p&gt;昔から仕様を知っている人にレビューが投げられがちで集中しやすいとかは他の会社でもよくある話しだと思う。 &lt;br&gt;
+レビューは自分のタスクと同様に大事だけど、それで自分のタスクが全くできなくなったり、新しく入ってきた人がレビューする機会を失うのはあまりよくない。&lt;br&gt;
+というのもあって、Hubotを立ててみてプルリクのレビュアーをランダムで振れるようにしてみた。&lt;/p&gt;
+
+&lt;p&gt;Hubotというのはご存知Hipchatのbotとして動くプログラムで、botにコマンドを指定してリモート実行させたり、特定の文字列に反応させたりということがHipchat上でできる。&lt;br&gt;&lt;br&gt;
+CoffeeScriptでスクリプト書けるのでとてもお手軽。&lt;/p&gt;
+
+&lt;p&gt;sushiという名前のHubotを立てて、GitHubのプルリクのURLをbotに投げるとランダムでレビューお願いします！とメンションを飛ばすようにしてみた。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;xxx   &lt;span class="p"&gt;|&lt;/span&gt; @sushi https://github.com/AAA/BBB/pull/999
+sushi &lt;span class="p"&gt;|&lt;/span&gt; @yyy オナシャス！ https://github.com/AAA/BBB/pull/999
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;GitHubから流れてくるログから自動でメンションを飛ばさないのは、大きな機能追加などは特定の人にレビューしてもらいたいことがあるので、そこは自分で打つ。assignまで自動でできる美しいんだけどそこまではまだ出来てない。&lt;br&gt;
+誰にレビューしてもらおうかなと考える必要もないし、レビューの偏りも結構解消されていい感じになった。&lt;/p&gt;
+
+&lt;p&gt;スタートアップはどんどん人が増えるので、新しく入った人にもレビューが振られることで早くプロジェクトになじめるとかそういうのは大きいと思う。&lt;/p&gt;
+
+&lt;p&gt;何より、みんなが楽しんでレビューを振れるようになったのがよかった。&lt;br&gt;
+pushされたブランチを見て、「俺に来るな、来るなよー・・来たーマジかorz・・」とか振られる側もドキドキできて楽しい。&lt;/p&gt;
+
+&lt;p&gt;ランダムレビュー以外にも、みんなの名前打ったりするとその人のおもしろ発言が流れたり楽しい感じになってる。&lt;/p&gt;
+
+&lt;p&gt;これまで自分のローカルで動かしてたのでw ちょっと旅行に行ったときは動いてなくて寂しかったと言ってもらえたのは嬉しかった。&lt;br&gt;
+普段の開発フローに定着できたので、ちゃんと運用していこうと思う。&lt;/p&gt;
+
+&lt;p&gt;方針を決めて守ったり対面のミーティングでなんとかしていけることもあるけど、動く仕組みを作ることで一段上の解決ができることもあるよなーと1つ勉強になりました。&lt;/p&gt;
+</content>
+  </entry>
+</feed>

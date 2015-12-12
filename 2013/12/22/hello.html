@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>GitHubとTravisCIで作るブログぽいもの - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1449932769" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2013-12-22</div><article class="post"><h1>GitHubとTravisCIで作るブログぽいもの</h1>
+
+<p>いまさら感ありますがGithub Pagesをメモ置き場として使い始めた。<br><br>
+<a href="http://jekyllrb.com/">Jekyll</a>のソースコードを見ていたら、いつの間にか<a href="https://github.com/waka/musako">musakoというMarkdownからHTMLを生成するGem</a>を作って初めてのPostをpushしていた。</p>
+
+<p>Jekyllでもいいんだけど、Markdownのタイトル付けの書式とかめんどいし、カテゴリもいらない。<br><br>
+必要最低限の依存ライブラリで高速に動くものがあればよかったので、自作した（あと<a href="https://github.com/slim-template/slim">slim</a>使いたかったというのもある）。<br><br>
+musakoという名前は武蔵小杉に住んでいるからで特に意味はない。</p>
+
+<p>なるほど、Github Pagesではユーザーリポジトリのmasterブランチをブラウザからそのまま表示する。<br><br>
+なので、TravisCIなどのCIサービスで別のブランチをビルドして出来た成果物（HTML、アセット）をafter hookでmasterブランチとしてpushすればいいわけか。</p>
+
+<p>それにしても、</p>
+
+<ul>
+<li>Markdownでメモを書く</li>
+<li>GitHubにPushする</li>
+</ul>
+<div class="highlight"><pre><span class="nv">$ </span>vim posts/hello.md
+<span class="nv">$ </span>git push origin notes
+</pre></div>
+<p>たったこれだけで今書いたものをHTMLとして世界中に公開できる。<br><br>
+必要な手順が2つというのがすごい。GitHubを中心とするエコシステムは本当にすごい。</p>
+</article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. 部屋とYシャツとJavaScript. Ruby, JavaScript, Java & Android, Objective-C & iOS. freeeという会計スタートアップにjoinしました.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013-2015 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>

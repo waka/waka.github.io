@@ -1,0 +1,49 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>Macの環境構築にhomebrew-cask+Brewfile便利 - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1449932769" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2014-01-19</div><article class="post"><h1>Macの環境構築にhomebrew-cask+Brewfile便利</h1>
+
+<p>先週 Macbook Air を新しいマシンにリプレースした際に、環境構築どうしようかなーと思って、<a href="https://github.com/phinze/homebrew-cask">homebrew-cask</a>を使ってみたらかなり捗った。</p>
+
+<p>Mac上の環境構築でよく聞くのは、GitHubが公開している<a href="http://boxen.github.com/">Boxen</a>だと思うけど、PuppetのDSL覚えるの面倒くさいし、パッケージ情報をメンテナンスするのも結構ヘビーだったりする。<br><br>
+対してhomebrew-caskは、Homebrewの仕組みを拡張して、GUIアプリも入れられるようにして、全部brewコマンドで管理できるようにしようぜという思想で作られている。</p>
+
+<p>1つずつコマンド打って全部入れていってもいいんだけど、最近のHomebrewはBrewfileを使ってパッケージ管理できるので一発で入れられて便利。</p>
+<div class="highlight"><pre><span class="c"># Make sure using latest Homebrew</span>
+update
+
+<span class="c"># Update already-installed formula</span>
+upgrade
+
+<span class="c"># Add Repository</span>
+tap phinze/homebrew-cask <span class="o">||</span> <span class="nb">true</span>
+tap homebrew/binary <span class="o">||</span> <span class="nb">true</span>
+
+<span class="c"># Packages for development</span>
+install zsh
+install git
+install vim
+
+<span class="c"># Packages for brew-cask</span>
+install brew-cask
+
+<span class="c"># .dmg from brew-cask</span>
+cask install google-chrome
+cask install virtualbox
+cask install vagrant
+
+<span class="c"># Remove outdated versions</span>
+cleanup
+</pre></div>
+<p>こんな感じのBrewfileがあるディレクトリで、ターミナルから「brew bundle」と打つと、書いたとおりにソフトウェアがインストールされる。<br><br>
+アップデートも「brew update」でよしなにやってくれる。</p>
+
+<p>BrewfileをGithubかなにかで管理しておけば、新しいマシンが来たときは「brew bundle」を実行するだけだし、新しく環境作り直す場合もbrewコマンドで消すかHomebrewのディレクトリをまるごと削除するだけでいいので簡単。  </p>
+
+<p>デフォルトの設定だとインストール先は「/opt/homebrew-cask/Caskroom」になり、「~/Applications」にシンボリックリンクを貼る模様。<br><br>
+これを変えたい場合は、「HOMEBREW_CASK_OPTS」という環境変数に指定すれば変更できる。<br><br>
+自分はhomebrew本体と同様にCaskroomを「/usr/local」下に置きたかったのと、シンボリックリンクは「/Applications」に貼りたかったので変更した。</p>
+<div class="highlight"><pre><span class="nb">export </span><span class="nv">HOMEBREW_CASK_OPTS</span><span class="o">=</span><span class="s2">&quot;--appdir=/Applications --caskroom=/usr/local/Caskroom&quot;</span>
+</pre></div>
+<p>ちなみに自分はAlfredをランチャーアプリとして使っていて、homebrew-caskで入れたアプリはシンボリックリンクなので検索対象になってくれなかった。<br><br>
+ただ、対応策としてサブコマンドがちゃんと用意されていて、そいつを実行すると検索対象に含まれるようになった。  </p>
+<div class="highlight"><pre><span class="nv">$ </span>brew cask alfred
+<span class="nv">$ </span>brew cask alfred link <span class="c"># CaskroomをAlfredの検索パスに追加</span>
+</pre></div></article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. 部屋とYシャツとJavaScript. Ruby, JavaScript, Java & Android, Objective-C & iOS. freeeという会計スタートアップにjoinしました.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013-2015 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>
