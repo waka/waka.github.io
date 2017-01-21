@@ -1,6 +1,6 @@
-<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>AngularJSの2way bindingの仕組みを追ってみた - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1449932769" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2014-01-04</div><article class="post"><h1>AngularJSの2way bindingの仕組みを追ってみた</h1>
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>AngularJSの2way bindingの仕組みを追ってみた - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1485024912" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2014-01-04</div><article class="post"><h1>AngularJSの2way bindingの仕組みを追ってみた</h1>
 
-<p>AngularJSの特徴でもある、モデルとビューの2way binding。<br><br>
+<p>AngularJSの特徴でもある、モデルとビューの2way binding。<br>
 AngularJSの簡単なコードがあるとする。（投稿時点ではv1.2.6）</p>
 <div class="highlight"><pre><span class="nt">&lt;body</span> <span class="na">ng-app</span> <span class="na">ng-init=</span><span class="s">&quot;message = &#39;nothing&#39;&quot;</span><span class="nt">&gt;</span>
   <span class="nt">&lt;div</span> <span class="na">ng-controller=</span><span class="s">&quot;SampleCtrl&quot;</span><span class="nt">&gt;</span>
@@ -23,12 +23,12 @@ AngularJSの簡単なコードがあるとする。（投稿時点ではv1.2.6�
   <span class="nt">&lt;script&gt;</span>
 <span class="nt">&lt;/body&gt;</span>
 </pre></div>
-<p>テキストボックスに文字を打ち込むと「{{getMessage()}}」に打ち込んだ文字がリアルタイムに表示されるし、「Set &quot;init&quot;」ボタンを押すとテキストボックスと「{{getMessage()}}」で表示されるテキストが空文字になる。<br><br>
-テキストボックスに$scopeのmessageプロパティをバインドしているので、テキストボックスがインタラクティブになるのは分かる。<br><br>
+<p>テキストボックスに文字を打ち込むと「{{getMessage()}}」に打ち込んだ文字がリアルタイムに表示されるし、「Set &quot;init&quot;」ボタンを押すとテキストボックスと「{{getMessage()}}」で表示されるテキストが空文字になる。<br>
+テキストボックスに$scopeのmessageプロパティをバインドしているので、テキストボックスがインタラクティブになるのは分かる。<br>
 しかしなぜ$scope.getMessage()も同じタイミングで実行されHTMLまで書き変わるのか。気になる。気になる・・！</p>
 
-<p>AngularJSのソースがどう動いているのか追ってみる。<br><br>
-AngularJSはuncompressedなファイルでは全体で20539行。<br><br>
+<p>AngularJSのソースがどう動いているのか追ってみる。<br>
+AngularJSはuncompressedなファイルでは全体で20539行。<br>
 ギリギリ読めないことはない。</p>
 
 <p>20535行目でロード時のイベントハンドラが発火される。</p>
@@ -36,13 +36,13 @@ AngularJSはuncompressedなファイルでは全体で20539行。<br><br>
   <span class="nx">angularInit</span><span class="p">(</span><span class="nb">document</span><span class="p">,</span> <span class="nx">bootstrap</span><span class="p">);</span>
 <span class="p">});</span>
 </pre></div>
-<p>angularInit関数の中で、「&#39;ng:app&#39;, &#39;ng-app&#39;, &#39;x-ng-app&#39;, &#39;data-ng-app&#39;」をid,classあるいは属性で持つ要素がAngularアプリのベース要素としてセットされる。<br><br>
+<p>angularInit関数の中で、「&#39;ng:app&#39;, &#39;ng-app&#39;, &#39;x-ng-app&#39;, &#39;data-ng-app&#39;」をid,classあるいは属性で持つ要素がAngularアプリのベース要素としてセットされる。<br>
 該当する要素がなければその後の処理はなにも実行されない。</p>
 
-<p>1283行目のdoBootstrap関数が実行される。<br><br>
-名前の通り初期化関数であり、ここでモジュールをロードし、Angular内の各サービスがファクトリー関数でインスタンス化される。<br><br>
-ここで利用されるinjectorというオブジェクトは、内部関数を呼び出すための抽象レイヤーみたいなもの。<br><br>
-本筋とはずれるが、window.nameに「NG_DEFER_BOOTSTRAP」という名前をセットしておくとdoBootstrap関数は呼ばれない。<br><br>
+<p>1283行目のdoBootstrap関数が実行される。<br>
+名前の通り初期化関数であり、ここでモジュールをロードし、Angular内の各サービスがファクトリー関数でインスタンス化される。<br>
+ここで利用されるinjectorというオブジェクトは、内部関数を呼び出すための抽象レイヤーみたいなもの。<br>
+本筋とはずれるが、window.nameに「NG_DEFER_BOOTSTRAP」という名前をセットしておくとdoBootstrap関数は呼ばれない。<br>
 代わりにangular.resumeBootstrap(extraModules)という、後から手動でdoBootstrap関数を実行できる関数が生える。</p>
 
 <p>サービスのファクトリー関数を見ると、名前の最後に&quot;Provider&quot;をつけて再起的にinvokeしていることが分かる。</p>
@@ -61,10 +61,10 @@ AngularJSはuncompressedなファイルでは全体で20539行。<br><br>
   <span class="p">}]</span>
 <span class="p">);</span>
 </pre></div>
-<p>$apply関数でやっていることは引数に渡した関数を実行すること。<br><br>
+<p>$apply関数でやっていることは引数に渡した関数を実行すること。<br>
 ようやくcompile関数にたどり着いた。</p>
 
-<p>compile関数で、引数に渡されたelementから再帰的にHTML要素を舐め、HTML要素にセットした「ng-*」属性名からディレクティブを呼び出し、ディレクティブのcompile関数で属性値を$eval関数で処理する。  </p>
+<p>compile関数で、引数に渡されたelementから再帰的にHTML要素を舐め、HTML要素にセットした「ng-*」属性名からディレクティブを呼び出し、ディレクティブのcompile関数で属性値を$eval関数で処理する。</p>
 
 <p>例えば、ng-init属性に対応するngInitDirectiveディレクティブはこのようになっている。</p>
 <div class="highlight"><pre><span class="kd">var</span> <span class="nx">ngInitDirective</span> <span class="o">=</span> <span class="nx">ngDirective</span><span class="p">({</span>
@@ -78,10 +78,10 @@ AngularJSはuncompressedなファイルでは全体で20539行。<br><br>
   <span class="p">}</span>
 <span class="p">});</span>
 </pre></div>
-<p>ng-controllerやng-modelもcompile関数でディレクティブを集め、返却されたクロージャで各ディレクティブをコンパイルしていく。<br><br>
+<p>ng-controllerやng-modelもcompile関数でディレクティブを集め、返却されたクロージャで各ディレクティブをコンパイルしていく。<br>
 ここでまず、「ng-init=&quot;message = &#39;nothing&#39;」といった初期化のための属性値はAngularが持つ構文解析にかけられ、対応するScopeインスタンスにセットされる。</p>
 
-<p>実際に値をセットしているのは、10238行目のsetter関数で行われる。<br><br>
+<p>実際に値をセットしているのは、10238行目のsetter関数で行われる。<br>
 最初の引数の「obj」にはScopeインスタンスが入っている。</p>
 <div class="highlight"><pre><span class="c1">//////////////////////////////////////////////////</span>
 <span class="c1">// Parser helper functions</span>
@@ -130,7 +130,7 @@ AngularJSはuncompressedなファイルでは全体で20539行。<br><br>
   <span class="k">return</span> <span class="nx">instance</span><span class="p">;</span>
 <span class="p">};</span>
 </pre></div>
-<p>実際にインスタンス化されるのは「$injector.instantiate(expression, locals)」の行だが、ここでユーザーが定義したコントローラーのコンストラクタを実行した結果が返る。<br><br>
+<p>実際にインスタンス化されるのは「$injector.instantiate(expression, locals)」の行だが、ここでユーザーが定義したコントローラーのコンストラクタを実行した結果が返る。<br>
 新規で作ったFunctionオブジェクトをthisとしてコントローラーのコンストラクタを実行するのが面白い。</p>
 <div class="highlight"><pre><span class="kd">function</span> <span class="nx">invoke</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">self</span><span class="p">,</span> <span class="nx">locals</span><span class="p">){</span>
   <span class="kd">var</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[],</span>
@@ -173,8 +173,8 @@ AngularJSはuncompressedなファイルでは全体で20539行。<br><br>
   <span class="k">return</span> <span class="nx">isObject</span><span class="p">(</span><span class="nx">returnedValue</span><span class="p">)</span> <span class="o">||</span> <span class="nx">isFunction</span><span class="p">(</span><span class="nx">returnedValue</span><span class="p">)</span> <span class="o">?</span> <span class="nx">returnedValue</span> <span class="o">:</span> <span class="nx">instance</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
-<p>「ng-model」はNgModelControllerとしてインスタンス化され、属性値をwatchする。<br><br>
-モデルに指定した変数の値が変更された場合、コントローラーの$viewValueに値をセットして再描画する。<br><br>
+<p>「ng-model」はNgModelControllerとしてインスタンス化され、属性値をwatchする。<br>
+モデルに指定した変数の値が変更された場合、コントローラーの$viewValueに値をセットして再描画する。<br>
 これがモデルからビューへのバインディングになっているわけか。</p>
 <div class="highlight"><pre><span class="nx">$scope</span><span class="p">.</span><span class="nx">$watch</span><span class="p">(</span><span class="kd">function</span> <span class="nx">ngModelWatch</span><span class="p">()</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">ngModelGet</span><span class="p">(</span><span class="nx">$scope</span><span class="p">);</span>
@@ -198,8 +198,8 @@ AngularJSはuncompressedなファイルでは全体で20539行。<br><br>
     <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
 <span class="p">});</span>
 </pre></div>
-<p>要素が「input type=&quot;text&quot;」の場合、textInputTypeというディレクティブが呼ばれる。<br><br>
-キー入力を監視し、Scopeインスタンスの$apply関数でコントローラーの$setViewValue関数に新しい値を渡して再描画させる。<br><br>
+<p>要素が「input type=&quot;text&quot;」の場合、textInputTypeというディレクティブが呼ばれる。<br>
+キー入力を監視し、Scopeインスタンスの$apply関数でコントローラーの$setViewValue関数に新しい値を渡して再描画させる。<br>
 他のinput要素などの再描画ロジックの違いはここで吸収し、ctrl.$renderに関数をセットしている。</p>
 <div class="highlight"><pre><span class="kd">var</span> <span class="nx">listener</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="nx">composing</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
@@ -232,9 +232,9 @@ AngularJSはuncompressedなファイルでは全体で20539行。<br><br>
   <span class="p">}</span>
 <span class="p">};</span>
 </pre></div>
-<p>「{{getMessage()}}」で表現している箇所に関しては、TextInterpolateDirectiveのtextInterpolateLinkFn関数でテキストノードにリスナー関数をバインディングする。<br><br>
-リスナー関数では「{{}}」を評価した結果を返し、値に変更があればテキストノードの値を書き換える。<br><br>
-$scope.messageの値が変わったら、$scope.getMessage()の結果も変わるので、「{{}}」の部分が変更される。<br><br>
+<p>「{{getMessage()}}」で表現している箇所に関しては、TextInterpolateDirectiveのtextInterpolateLinkFn関数でテキストノードにリスナー関数をバインディングする。<br>
+リスナー関数では「{{}}」を評価した結果を返し、値に変更があればテキストノードの値を書き換える。<br>
+$scope.messageの値が変わったら、$scope.getMessage()の結果も変わるので、「{{}}」の部分が変更される。<br>
 これでモデルからビューへのバインディングの仕組みが分かった。</p>
 <div class="highlight"><pre><span class="kd">function</span> <span class="nx">textInterpolateLinkFn</span><span class="p">(</span><span class="nx">scope</span><span class="p">,</span> <span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
   <span class="kd">var</span> <span class="nx">parent</span> <span class="o">=</span> <span class="nx">node</span><span class="p">.</span><span class="nx">parent</span><span class="p">(),</span>
@@ -246,7 +246,7 @@ $scope.messageの値が変わったら、$scope.getMessage()の結果も変わ�
   <span class="p">});</span>
 <span class="p">}</span>
 </pre></div>
-<p>最後に、$rootScope.$digest関数が呼ばれ、Scopeの階層を下りながらScopeのwatch対象に対してリスナー関数を実行していく。<br><br>
+<p>最後に、$rootScope.$digest関数が呼ばれ、Scopeの階層を下りながらScopeのwatch対象に対してリスナー関数を実行していく。<br>
 $scope.messageには&quot;nothing&quot;という文字列が新しく入っているので、変更後の値として扱われる。</p>
 <div class="highlight"><pre><span class="k">if</span> <span class="p">((</span><span class="nx">watchers</span> <span class="o">=</span> <span class="nx">current</span><span class="p">.</span><span class="nx">$$watchers</span><span class="p">))</span> <span class="p">{</span>
   <span class="c1">// process our watches</span>
@@ -274,15 +274,15 @@ $scope.messageには&quot;nothing&quot;という文字列が新しく入って�
   <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
-<p>これでbootstrap関数で実行される処理は終わり。  </p>
+<p>これでbootstrap関数で実行される処理は終わり。</p>
 
-<p>長い・・！フレームワークの特性上、ロード時にいろいろやってるのは想像つくけど、これはすごい。<br><br>
-クロージャを上手く使ってキャプチャすることでなるべくプロトタイプに値を持たせずに引き回してたり、全体を見たときに作られるインスタンスがとても少ない。<br><br>
-Scopeという概念がHTMLの階層とマッチしていて、値の変更時のキャプチャリング/バブリングを上手く抽象化していることが分かる。<br><br>
-でもって、Scopeはその階層でのハンドラや独自処理をプロトタイプに書けると。<br><br>
-invokeの使い方はAngular使わないコードでも参考になるなー。<br><br>
+<p>長い・・！フレームワークの特性上、ロード時にいろいろやってるのは想像つくけど、これはすごい。<br>
+クロージャを上手く使ってキャプチャすることでなるべくプロトタイプに値を持たせずに引き回してたり、全体を見たときに作られるインスタンスがとても少ない。<br>
+Scopeという概念がHTMLの階層とマッチしていて、値の変更時のキャプチャリング/バブリングを上手く抽象化していることが分かる。<br>
+でもって、Scopeはその階層でのハンドラや独自処理をプロトタイプに書けると。<br>
+invokeの使い方はAngular使わないコードでも参考になるなー。<br>
 あと、GoogleClosureLibraryを使ったことのある人だったら見覚えのある実装がいくつかあったりしてニヤッとしたり。</p>
 
-<p>これで2way bindingの仕組みが分かったので、AngularJSと少し仲良くなれた気がする。<br><br>
+<p>これで2way bindingの仕組みが分かったので、AngularJSと少し仲良くなれた気がする。<br>
 次はDIともうちょっとディレクティブをちゃんと追ってみよう。</p>
-</article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. 部屋とYシャツとJavaScript. Ruby, JavaScript, Java & Android, Objective-C & iOS. freeeという会計スタートアップにjoinしました.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013-2015 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>
+</article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. Joined at freee K.K. since 2013. I like Ruby and JavaScript, but I really like Java.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>

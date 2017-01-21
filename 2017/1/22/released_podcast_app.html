@@ -1,0 +1,118 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>78.9 (7hack)というPodcastを聴くためのAndroidアプリを作った - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1485024912" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2017-01-22</div><article class="post"><h1>78.9 (7hack)というPodcastを聴くためのAndroidアプリを作った</h1>
+
+<p>本当に今更ながら、通勤でPodcastを聴くことが習慣づいてきた。<br>
+<a href="http://qiita.com/suginoy/items/dada11eef775b883320f">なんかこの1年くらいTech系のPodcast増えてませんか</a>。どれも面白くてすごい。</p>
+
+<p>自分の携帯端末はAndroidなのでFM Playerというアプリで聴いていて、非常に高機能でよくできたアプリなんだけど、自分にはオススメ番組や後で聴く機能とか必要なくて、なんかもうちょっと軽くて操作に集中できるUIのアプリないかなと探してもしっくりくるのがなかった。<br>
+そんな折、年末に新しいAndroid端末に変えてAndroid愛が高まったのと、ここ最近Android開発ご無沙汰だったので、最近の開発環境をキャッチアップするのも兼ねてPodcastアプリを作ってみました。</p>
+
+<p>というわけで、先ほど<a href="https://play.google.com/store/apps/details?id=io.github.waka.sevenhack">78.9(7hack)というアプリをPlayStoreに公開しました</a>。よかったら。<br>
+Podcastを「探す」「見る」「聴く」に特化した機能のみなので、自分のようにサッと登録してチャッと聴きたい人向け。<br>
+78.9というのは地元のFMラジオの周波数で、昔Nack5(79.5)をよく聴いていたのを思い出したのでモジってみた。</p>
+
+<p>もちろん<a href="https://github.com/waka/SevenHack">ソースコードも公開しています</a>。<br>
+最近のSupportLibraryを結構使ってるのと、RxJava2とSQLBriteを組み合わせて使ってたりします。</p>
+
+<p>個人で久しぶりにアプリ作ったけど、ユーザーが自分なのとUI自由に考えられて楽しい。<br>
+マネージメントメインになってから自分でUIを考える機会が減ったのでリハビリとしてもよかった。</p>
+
+<h2>開発メモ的な</h2>
+
+<p>自分が業務でAndroidの機能実装したの、2年前にMaterialDesign対応して以来なので、最近はSupportLibraryでのMaterialDesign表現が充実していてびっくりした。<br>
+特にCollapsingToolbarLayoutやFloatingActionButtonが標準で用意されてるなんて・・、キーラインもほとんど自前で定義する必要なくなってて進化すごい。</p>
+
+<h3>DBアクセス層</h3>
+
+<p>RSSフィードをSQLiteに保存したいが、生SQLiteHelperもアレだし何か使おうと思って探してみたところ、いい感じに薄そうだったSQLBriteを採用。<br>
+SQLBriteのいいところは、いい感じに薄いのでDAO層を作りやすいのと、Transactionが使いやすいところ。<br>
+逆にそうでもなかったところは、SQLBriteが標準で用意しているRxJavaサポートで、これはSelect文を発行するObservableをSubscribeしておくと、そのテーブルに行が挿入/削除など変更があったときに自動でSubscriberを実行してくれるというもの。<br>
+RecyclerViewでnotifyDataChangedでなくnotifyItemRemovedやnotifyItemChangedを使ってアニメーションさせたり変更を最小限にしようと思っても、Subscriberで再読み込みされてしまうので、実装が複雑になって相性がよくないと感じた。</p>
+
+<p>結局、DAO層はSQLBrite#queryを愚直に使ってObservableを返さずEntityを返すのみにして、ビジネスロジックを扱うLogic層でDAOの結果を返すObservableを返すようにした。<br>
+どのみち、SQLBriteが依存しているRxJavaは1系なので、RxJava2を入れた時点でこうするしかない。<br>
+UI層から直接DAOを叩くことはしないので、実装的には見通しがよくなってよかった。</p>
+
+<p>EpisodeDao</p>
+<div class="highlight"><pre><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">EpisodeDao</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Episode</span><span class="o">&gt;</span> <span class="nf">findAll</span><span class="o">(</span><span class="n">Podcast</span> <span class="n">podcast</span><span class="o">,</span> <span class="kt">int</span> <span class="n">limit</span><span class="o">,</span> <span class="kt">int</span> <span class="n">offset</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Episode</span><span class="o">&gt;</span> <span class="n">items</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+        <span class="n">Formatter</span> <span class="n">formatter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Formatter</span><span class="o">(</span><span class="k">new</span> <span class="n">StringBuilder</span><span class="o">(),</span> <span class="n">Locale</span><span class="o">.</span><span class="na">JAPANESE</span><span class="o">);</span>
+        <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="n">formatter</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">LIST_QUERY</span><span class="o">,</span> <span class="n">podcast</span><span class="o">.</span><span class="na">id</span><span class="o">,</span> <span class="n">limit</span><span class="o">,</span> <span class="n">offset</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+
+        <span class="n">Cursor</span> <span class="n">cursor</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">cursor</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">items</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">while</span> <span class="o">(</span><span class="n">cursor</span><span class="o">.</span><span class="na">moveToNext</span><span class="o">())</span> <span class="o">{</span>
+                <span class="c1">// entityに詰める</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">items</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+<p>EpisodeLogic</p>
+<div class="highlight"><pre><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">EpisodeLogic</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">Observable</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Episode</span><span class="o">&gt;&gt;</span> <span class="nf">list</span><span class="o">(</span><span class="n">Podcast</span> <span class="n">podcast</span><span class="o">,</span> <span class="kt">int</span> <span class="n">limit</span><span class="o">,</span> <span class="kt">int</span> <span class="n">offset</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">Observable</span><span class="o">.</span><span class="na">just</span><span class="o">(</span><span class="n">episodeDao</span><span class="o">.</span><span class="na">findAll</span><span class="o">(</span><span class="n">podcast</span><span class="o">,</span> <span class="n">limit</span><span class="o">,</span> <span class="n">offset</span><span class="o">))</span>
+                <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="k">this</span><span class="o">::</span><span class="n">withEnclosureCache</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">newThread</span><span class="o">())</span>
+                <span class="o">.</span><span class="na">observeOn</span><span class="o">(</span><span class="n">AndroidSchedulers</span><span class="o">.</span><span class="na">mainThread</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="n">Observable</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Episode</span><span class="o">&gt;&gt;</span> <span class="nf">withEnclosureCache</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Episode</span><span class="o">&gt;</span> <span class="n">episodes</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">Observable</span><span class="o">.</span><span class="na">just</span><span class="o">(</span><span class="n">enclosureCacheDao</span><span class="o">.</span><span class="na">findAll</span><span class="o">(</span><span class="n">episodes</span><span class="o">))</span>
+                <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">enclosureCaches</span> <span class="o">-&gt;</span> <span class="o">{</span>
+                    <span class="k">for</span> <span class="o">(</span><span class="n">Episode</span> <span class="n">episode</span> <span class="o">:</span> <span class="n">episodes</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="c1">// set cache to episode</span>
+                    <span class="o">}</span>
+                    <span class="k">return</span> <span class="n">episodes</span><span class="o">;</span>
+                <span class="o">});</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+<p>この辺をやってるところで、<a href="https://github.com/gfx/Android-Orma">Orma</a>の存在に気づいてあーっとなった。<br>
+Ormaもいい感じに薄い上に、relationの定義も簡単だし、migrationも使いやすそう。多分次何か作る場合はOrmaを採用すると思います。</p>
+
+<h3>APIアクセス層</h3>
+
+<p><a href="https://github.com/square/retrofit">Retrofit2</a>を採用してみた。<br>
+Retrofit1時代にSimpleXMLConverterを使ってみたことがあって、そのときは結構バギーな印象だったけど、今の所特に問題は起きてない。<br>
+宣言的なAPIクライアントとPOJOだけでよくなるのでXMLのパースをサクッと書けて最高でした。<br>
+話はずれるが、PodcastのATOMフィードは各番組でXMLの仕様が微妙に違っていて辛い。</p>
+
+<h3>StethoとLeakCanary</h3>
+
+<p>今回使ってみて感動した開発向けライブラリを2つ。</p>
+
+<p><a href="http://facebook.github.io/stetho/">Stetho</a>を使うとSQLiteの中身や通信の中身をChromeのdeveloper consoleで見ることができる。<br>
+（通信の中身を見る場合はOKHttp用のヘルパーを別途dependencyで指定する必要はある）<br>
+以前PonyDebuggerというのがあって、同様にChromeから通信内容見れたけど、それの高機能版という感じか。<br>
+SQLiteの中身をLocalStorage見る感覚で確認できるの最高。<br>
+使い方も簡単で、Applicationクラスで初期化するだけでOK。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainApplication</span> <span class="kd">extends</span> <span class="n">Application</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">();</span>
+        <span class="n">Stetho</span><span class="o">.</span><span class="na">initializeWithDefaults</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+<p><a href="https://github.com/square/leakcanary">LeakCanary</a>はメモリリークを検出するライブラリ。<br>
+アプリを操作してメモリーリークが発生すると、通知されてどこでリークが発生したかが分かる。<br>
+ログを見てると、GCを走らせてactivityの参照が残ってないかをチェックしている？<br>
+リークが一定時間発生しなかったら「No leak!」と通知されて気持ちいい。<br>
+こちらもApplicationクラスで初期化するだけでOK。</p>
+<div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainApplication</span> <span class="kd">extends</span> <span class="n">Application</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">();</span>
+        <span class="n">LeakCanary</span><span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div></article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. Joined at freee K.K. since 2013. I like Ruby and JavaScript, but I really like Java.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>

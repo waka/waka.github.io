@@ -4,16 +4,144 @@
   <subtitle>Fragment of code</subtitle>
   <id>http://waka.github.io</id>
   <link href="http://waka.github.io"/>
-  <updated>2015-12-12T00:00:00+0000</updated>
+  <updated>2017-01-22T00:00:00+0000</updated>
   <author>
     <name>yo_waka</name>
   </author>
+  <entry>
+    <title>78.9 (7hack)というPodcastを聴くためのAndroidアプリを作った</title>
+    <link rel="alternate" href="http://waka.github.io/2017/1/22/released_podcast_app.html"/>
+    <id>http://waka.github.io/2017/1/22/released_podcast_app.html</id>
+    <published>2017-01-22T00:00:00+0000</published>
+    <updated>2017-01-22T03:54:37+0900</updated>
+    <author>
+      <name>yo_waka</name>
+    </author>
+    <content type="html">&lt;h1&gt;78.9 (7hack)というPodcastを聴くためのAndroidアプリを作った&lt;/h1&gt;
+
+&lt;p&gt;本当に今更ながら、通勤でPodcastを聴くことが習慣づいてきた。&lt;br&gt;
+&lt;a href="http://qiita.com/suginoy/items/dada11eef775b883320f"&gt;なんかこの1年くらいTech系のPodcast増えてませんか&lt;/a&gt;。どれも面白くてすごい。&lt;/p&gt;
+
+&lt;p&gt;自分の携帯端末はAndroidなのでFM Playerというアプリで聴いていて、非常に高機能でよくできたアプリなんだけど、自分にはオススメ番組や後で聴く機能とか必要なくて、なんかもうちょっと軽くて操作に集中できるUIのアプリないかなと探してもしっくりくるのがなかった。&lt;br&gt;
+そんな折、年末に新しいAndroid端末に変えてAndroid愛が高まったのと、ここ最近Android開発ご無沙汰だったので、最近の開発環境をキャッチアップするのも兼ねてPodcastアプリを作ってみました。&lt;/p&gt;
+
+&lt;p&gt;というわけで、先ほど&lt;a href="https://play.google.com/store/apps/details?id=io.github.waka.sevenhack"&gt;78.9(7hack)というアプリをPlayStoreに公開しました&lt;/a&gt;。よかったら。&lt;br&gt;
+Podcastを「探す」「見る」「聴く」に特化した機能のみなので、自分のようにサッと登録してチャッと聴きたい人向け。&lt;br&gt;
+78.9というのは地元のFMラジオの周波数で、昔Nack5(79.5)をよく聴いていたのを思い出したのでモジってみた。&lt;/p&gt;
+
+&lt;p&gt;もちろん&lt;a href="https://github.com/waka/SevenHack"&gt;ソースコードも公開しています&lt;/a&gt;。&lt;br&gt;
+最近のSupportLibraryを結構使ってるのと、RxJava2とSQLBriteを組み合わせて使ってたりします。&lt;/p&gt;
+
+&lt;p&gt;個人で久しぶりにアプリ作ったけど、ユーザーが自分なのとUI自由に考えられて楽しい。&lt;br&gt;
+マネージメントメインになってから自分でUIを考える機会が減ったのでリハビリとしてもよかった。&lt;/p&gt;
+
+&lt;h2&gt;開発メモ的な&lt;/h2&gt;
+
+&lt;p&gt;自分が業務でAndroidの機能実装したの、2年前にMaterialDesign対応して以来なので、最近はSupportLibraryでのMaterialDesign表現が充実していてびっくりした。&lt;br&gt;
+特にCollapsingToolbarLayoutやFloatingActionButtonが標準で用意されてるなんて・・、キーラインもほとんど自前で定義する必要なくなってて進化すごい。&lt;/p&gt;
+
+&lt;h3&gt;DBアクセス層&lt;/h3&gt;
+
+&lt;p&gt;RSSフィードをSQLiteに保存したいが、生SQLiteHelperもアレだし何か使おうと思って探してみたところ、いい感じに薄そうだったSQLBriteを採用。&lt;br&gt;
+SQLBriteのいいところは、いい感じに薄いのでDAO層を作りやすいのと、Transactionが使いやすいところ。&lt;br&gt;
+逆にそうでもなかったところは、SQLBriteが標準で用意しているRxJavaサポートで、これはSelect文を発行するObservableをSubscribeしておくと、そのテーブルに行が挿入/削除など変更があったときに自動でSubscriberを実行してくれるというもの。&lt;br&gt;
+RecyclerViewでnotifyDataChangedでなくnotifyItemRemovedやnotifyItemChangedを使ってアニメーションさせたり変更を最小限にしようと思っても、Subscriberで再読み込みされてしまうので、実装が複雑になって相性がよくないと感じた。&lt;/p&gt;
+
+&lt;p&gt;結局、DAO層はSQLBrite#queryを愚直に使ってObservableを返さずEntityを返すのみにして、ビジネスロジックを扱うLogic層でDAOの結果を返すObservableを返すようにした。&lt;br&gt;
+どのみち、SQLBriteが依存しているRxJavaは1系なので、RxJava2を入れた時点でこうするしかない。&lt;br&gt;
+UI層から直接DAOを叩くことはしないので、実装的には見通しがよくなってよかった。&lt;/p&gt;
+
+&lt;p&gt;EpisodeDao&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nd"&gt;@Singleton&lt;/span&gt;
+&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;EpisodeDao&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Episode&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;findAll&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Podcast&lt;/span&gt; &lt;span class="n"&gt;podcast&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;offset&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Episode&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+        &lt;span class="n"&gt;Formatter&lt;/span&gt; &lt;span class="n"&gt;formatter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Formatter&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;StringBuilder&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;Locale&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;JAPANESE&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;sql&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;formatter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;format&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;LIST_QUERY&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;podcast&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;id&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;offset&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="na"&gt;toString&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+        &lt;span class="n"&gt;Cursor&lt;/span&gt; &lt;span class="n"&gt;cursor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;db&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;query&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sql&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cursor&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cursor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;moveToNext&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                &lt;span class="c1"&gt;// entityに詰める&lt;/span&gt;
+            &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;finally&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;cursor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;close&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;EpisodeLogic&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nd"&gt;@Singleton&lt;/span&gt;
+&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;EpisodeLogic&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="n"&gt;Observable&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Episode&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;list&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Podcast&lt;/span&gt; &lt;span class="n"&gt;podcast&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;offset&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;Observable&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;just&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;episodeDao&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;findAll&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;podcast&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;limit&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;offset&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+                &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;flatMap&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;withEnclosureCache&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+                &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;subscribeOn&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Schedulers&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;newThread&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt;
+                &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;observeOn&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;AndroidSchedulers&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;mainThread&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="n"&gt;Observable&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Episode&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="nf"&gt;withEnclosureCache&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Episode&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;episodes&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;Observable&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;just&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;enclosureCacheDao&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;findAll&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;episodes&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt;
+                &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;map&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;enclosureCaches&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Episode&lt;/span&gt; &lt;span class="n"&gt;episode&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;episodes&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                        &lt;span class="c1"&gt;// set cache to episode&lt;/span&gt;
+                    &lt;span class="o"&gt;}&lt;/span&gt;
+                    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;episodes&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+                &lt;span class="o"&gt;});&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;この辺をやってるところで、&lt;a href="https://github.com/gfx/Android-Orma"&gt;Orma&lt;/a&gt;の存在に気づいてあーっとなった。&lt;br&gt;
+Ormaもいい感じに薄い上に、relationの定義も簡単だし、migrationも使いやすそう。多分次何か作る場合はOrmaを採用すると思います。&lt;/p&gt;
+
+&lt;h3&gt;APIアクセス層&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href="https://github.com/square/retrofit"&gt;Retrofit2&lt;/a&gt;を採用してみた。&lt;br&gt;
+Retrofit1時代にSimpleXMLConverterを使ってみたことがあって、そのときは結構バギーな印象だったけど、今の所特に問題は起きてない。&lt;br&gt;
+宣言的なAPIクライアントとPOJOだけでよくなるのでXMLのパースをサクッと書けて最高でした。&lt;br&gt;
+話はずれるが、PodcastのATOMフィードは各番組でXMLの仕様が微妙に違っていて辛い。&lt;/p&gt;
+
+&lt;h3&gt;StethoとLeakCanary&lt;/h3&gt;
+
+&lt;p&gt;今回使ってみて感動した開発向けライブラリを2つ。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="http://facebook.github.io/stetho/"&gt;Stetho&lt;/a&gt;を使うとSQLiteの中身や通信の中身をChromeのdeveloper consoleで見ることができる。&lt;br&gt;
+（通信の中身を見る場合はOKHttp用のヘルパーを別途dependencyで指定する必要はある）&lt;br&gt;
+以前PonyDebuggerというのがあって、同様にChromeから通信内容見れたけど、それの高機能版という感じか。&lt;br&gt;
+SQLiteの中身をLocalStorage見る感覚で確認できるの最高。&lt;br&gt;
+使い方も簡単で、Applicationクラスで初期化するだけでOK。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;MainApplication&lt;/span&gt; &lt;span class="kd"&gt;extends&lt;/span&gt; &lt;span class="n"&gt;Application&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;onCreate&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="kd"&gt;super&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;onCreate&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+        &lt;span class="n"&gt;Stetho&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;initializeWithDefaults&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;a href="https://github.com/square/leakcanary"&gt;LeakCanary&lt;/a&gt;はメモリリークを検出するライブラリ。&lt;br&gt;
+アプリを操作してメモリーリークが発生すると、通知されてどこでリークが発生したかが分かる。&lt;br&gt;
+ログを見てると、GCを走らせてactivityの参照が残ってないかをチェックしている？&lt;br&gt;
+リークが一定時間発生しなかったら「No leak!」と通知されて気持ちいい。&lt;br&gt;
+こちらもApplicationクラスで初期化するだけでOK。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;MainApplication&lt;/span&gt; &lt;span class="kd"&gt;extends&lt;/span&gt; &lt;span class="n"&gt;Application&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;onCreate&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="kd"&gt;super&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;onCreate&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+        &lt;span class="n"&gt;LeakCanary&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;install&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</content>
+  </entry>
   <entry>
     <title>最近のnpmライブラリ書くときのpackage.json</title>
     <link rel="alternate" href="http://waka.github.io/2015/12/12/npm_setup.html"/>
     <id>http://waka.github.io/2015/12/12/npm_setup.html</id>
     <published>2015-12-12T00:00:00+0000</published>
-    <updated>2015-12-13T00:05:56+0900</updated>
+    <updated>2017-01-22T03:54:37+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -60,7 +188,7 @@ filesにlibだけを書いておけば成果物のサイズが小さくなるの
     <link rel="alternate" href="http://waka.github.io/2015/11/25/gulp_sprockets.html"/>
     <id>http://waka.github.io/2015/11/25/gulp_sprockets.html</id>
     <published>2015-11-25T00:00:00+0000</published>
-    <updated>2015-12-13T00:05:56+0900</updated>
+    <updated>2017-01-22T03:54:37+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -161,7 +289,7 @@ SprocketsではSassコンパイラにカスタム関数として定義してコ�
     <link rel="alternate" href="http://waka.github.io/2014/10/26/reactivecocoa_tokyo_freee.html"/>
     <id>http://waka.github.io/2014/10/26/reactivecocoa_tokyo_freee.html</id>
     <published>2014-10-26T00:00:00+0000</published>
-    <updated>2015-12-13T00:05:56+0900</updated>
+    <updated>2017-01-22T03:54:37+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -196,7 +324,7 @@ SprocketsではSassコンパイラにカスタム関数として定義してコ�
     <link rel="alternate" href="http://waka.github.io/2014/7/19/gradle_module_build.html"/>
     <id>http://waka.github.io/2014/7/19/gradle_module_build.html</id>
     <published>2014-07-19T00:00:00+0000</published>
-    <updated>2015-12-13T00:05:56+0900</updated>
+    <updated>2017-01-22T03:54:37+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -205,7 +333,7 @@ SprocketsではSassコンパイラにカスタム関数として定義してコ�
 &lt;p&gt;Android StudioがBetaになったので、0.8.2に上げようとしたらモジュールのビルドでハマった。&lt;/p&gt;
 
 &lt;p&gt;Android Studioのバージョンを上げるときは、build.gradleを弄る時でもある。&lt;br&gt;
-Betaに上げるからには最新版のGradleプラグインとAndroid SDKでコンパイル&amp;amp;ビルドできるようにしたい。  &lt;/p&gt;
+Betaに上げるからには最新版のGradleプラグインとAndroid SDKでコンパイル&amp;amp;ビルドできるようにしたい。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;// project/gradle/gradle-wrapper.properties&lt;/span&gt;
 &lt;span class="n"&gt;distributionUrl&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="err"&gt;\&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//services.gradle.org/distributions/gradle-1.12-all.zip&lt;/span&gt;
 
@@ -225,8 +353,8 @@ Betaに上げるからには最新版のGradleプラグインとAndroid SDKで�
   &lt;span class="n"&gt;buildToolsVersion&lt;/span&gt; &lt;span class="p"&gt;&amp;#39;&lt;/span&gt;&lt;span class="mf"&gt;20.0.0&lt;/span&gt;&lt;span class="p"&gt;&amp;#39;&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;しかしビルドエラー。&lt;br&gt;&lt;br&gt;
-ルートプロジェクトのGradleプラグインのバージョンを0.12に上げると、buildToolsVersionが&amp;quot;19.1&amp;quot;以上でないとビルドできない。&lt;br&gt;&lt;br&gt;
+&lt;p&gt;しかしビルドエラー。&lt;br&gt;
+ルートプロジェクトのGradleプラグインのバージョンを0.12に上げると、buildToolsVersionが&amp;quot;19.1&amp;quot;以上でないとビルドできない。&lt;br&gt;
 僕の環境では&lt;a href="https://android.googlesource.com/platform/frameworks/volley/"&gt;volley&lt;/a&gt;をモジュール（submodule）として組み込んでいて、compileSdkVersionとbuildToolsVersionがこのように指定されている。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c1"&gt;// modules/volley/build.gradle&lt;/span&gt;
 &lt;span class="n"&gt;android&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
@@ -234,7 +362,7 @@ Betaに上げるからには最新版のGradleプラグインとAndroid SDKで�
   &lt;span class="n"&gt;buildToolsVersion&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mh"&gt;19&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;volleyのソースを見る限りbuildToolsVersionを20に上げても特に問題なさそうなので、何とかしてビルドが実行される前にandroid()の中身を上書きしたい。&lt;br&gt;&lt;br&gt;
+&lt;p&gt;volleyのソースを見る限りbuildToolsVersionを20に上げても特に問題なさそうなので、何とかしてビルドが実行される前にandroid()の中身を上書きしたい。&lt;br&gt;
 と思って、&lt;a href="http://www.gradle.org/docs/1.12/userguide/userguide.html"&gt;Gradle User Guide&lt;/a&gt;を眺めていたら、Project.afterEvaluate()というものを見つけた。&lt;br&gt;
 Project.afterEvaluate()は、そのプロジェクトのビルドスクリプトが評価された後に実行されるらしい。まさにやりたいことと一致！&lt;/p&gt;
 
@@ -251,7 +379,7 @@ Gradleのバージョンごとに用意されているので、使っている�
   &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;これで、モジュールとして組み込んでいるライブラリプロジェクト全てのcompileSdkVersionとbuildToolsVersionをアプリのそれと合わせることができる。&lt;br&gt;&lt;br&gt;
+&lt;p&gt;これで、モジュールとして組み込んでいるライブラリプロジェクト全てのcompileSdkVersionとbuildToolsVersionをアプリのそれと合わせることができる。&lt;br&gt;
 もし特定のプロジェクトだけどうしても&amp;quot;19.1&amp;quot;でビルドしたければ、プロジェクトごとに指定すればおk。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;project&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;modules&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;volley&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
   &lt;span class="n"&gt;afterEvaluate&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
@@ -268,7 +396,7 @@ Gradleのバージョンごとに用意されているので、使っている�
     <link rel="alternate" href="http://waka.github.io/2014/6/22/android_rxjava.html"/>
     <id>http://waka.github.io/2014/6/22/android_rxjava.html</id>
     <published>2014-06-22T00:00:00+0000</published>
-    <updated>2015-12-13T00:05:56+0900</updated>
+    <updated>2017-01-22T03:54:37+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -291,47 +419,6 @@ RxJavaのObservable、Subscriber、Func/Actionを使うことで、API呼び出�
 
 &lt;p&gt;こういうFRPなライブラリをクライアントアプリで使うと、コアな部分で使うためどうしてもロックインを防げないのがデメリットです。&lt;br&gt;
 &lt;a href="http://www.reactive-streams.org/"&gt;Reactive Streams&lt;/a&gt;による標準化に期待。&lt;/p&gt;
-</content>
-  </entry>
-  <entry>
-    <title>Hubotを導入したらレビューの敷居が下がった話</title>
-    <link rel="alternate" href="http://waka.github.io/2014/4/6/codereview_with_hubot.html"/>
-    <id>http://waka.github.io/2014/4/6/codereview_with_hubot.html</id>
-    <published>2014-04-06T00:00:00+0000</published>
-    <updated>2015-12-13T00:05:56+0900</updated>
-    <author>
-      <name>yo_waka</name>
-    </author>
-    <content type="html">&lt;h1&gt;Hubotを導入したらレビューの敷居が下がった話&lt;/h1&gt;
-
-&lt;p&gt;ウチの会社ではHipchatとGitHubを開発のコミュニケーションの中心にしている。 &lt;br&gt;
-だんだん人も増えてくると、以前よりプルリクの数がそれだけ増えて、レビューで1日終わってしまう人がでてきた。&lt;/p&gt;
-
-&lt;p&gt;昔から仕様を知っている人にレビューが投げられがちで集中しやすいとかは他の会社でもよくある話しだと思う。 &lt;br&gt;
-レビューは自分のタスクと同様に大事だけど、それで自分のタスクが全くできなくなったり、新しく入ってきた人がレビューする機会を失うのはあまりよくない。&lt;br&gt;
-というのもあって、Hubotを立ててみてプルリクのレビュアーをランダムで振れるようにしてみた。&lt;/p&gt;
-
-&lt;p&gt;Hubotというのはご存知Hipchatのbotとして動くプログラムで、botにコマンドを指定してリモート実行させたり、特定の文字列に反応させたりということがHipchat上でできる。&lt;br&gt;&lt;br&gt;
-CoffeeScriptでスクリプト書けるのでとてもお手軽。&lt;/p&gt;
-
-&lt;p&gt;sushiという名前のHubotを立てて、GitHubのプルリクのURLをbotに投げるとランダムでレビューお願いします！とメンションを飛ばすようにしてみた。&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;xxx   &lt;span class="p"&gt;|&lt;/span&gt; @sushi https://github.com/AAA/BBB/pull/999
-sushi &lt;span class="p"&gt;|&lt;/span&gt; @yyy オナシャス！ https://github.com/AAA/BBB/pull/999
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;GitHubから流れてくるログから自動でメンションを飛ばさないのは、大きな機能追加などは特定の人にレビューしてもらいたいことがあるので、そこは自分で打つ。assignまで自動でできる美しいんだけどそこまではまだ出来てない。&lt;br&gt;
-誰にレビューしてもらおうかなと考える必要もないし、レビューの偏りも結構解消されていい感じになった。&lt;/p&gt;
-
-&lt;p&gt;スタートアップはどんどん人が増えるので、新しく入った人にもレビューが振られることで早くプロジェクトになじめるとかそういうのは大きいと思う。&lt;/p&gt;
-
-&lt;p&gt;何より、みんなが楽しんでレビューを振れるようになったのがよかった。&lt;br&gt;
-pushされたブランチを見て、「俺に来るな、来るなよー・・来たーマジかorz・・」とか振られる側もドキドキできて楽しい。&lt;/p&gt;
-
-&lt;p&gt;ランダムレビュー以外にも、みんなの名前打ったりするとその人のおもしろ発言が流れたり楽しい感じになってる。&lt;/p&gt;
-
-&lt;p&gt;これまで自分のローカルで動かしてたのでw ちょっと旅行に行ったときは動いてなくて寂しかったと言ってもらえたのは嬉しかった。&lt;br&gt;
-普段の開発フローに定着できたので、ちゃんと運用していこうと思う。&lt;/p&gt;
-
-&lt;p&gt;方針を決めて守ったり対面のミーティングでなんとかしていけることもあるけど、動く仕組みを作ることで一段上の解決ができることもあるよなーと1つ勉強になりました。&lt;/p&gt;
 </content>
   </entry>
 </feed>
