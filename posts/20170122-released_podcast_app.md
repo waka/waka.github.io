@@ -13,6 +13,9 @@ Podcastを「探す」「見る」「聴く」に特化した機能のみなの�
 もちろん[ソースコードも公開しています](https://github.com/waka/SevenHack)。
 最近のSupportLibraryを結構使ってるのと、RxJava2とSQLBriteを組み合わせて使ってたりします。
 
+個人で久しぶりにアプリ作ったけど、ユーザーが自分なのとUI自由に考えられて楽しい。
+マネージメントメインになってから自分でUIを考える機会が減ったのでリハビリとしてもよかった。
+
 ## 開発メモ的な
 
 自分が業務でAndroidの機能実装したの、2年前にMaterialDesign対応して以来なので、最近はSupportLibraryでのMaterialDesign表現が充実していてびっくりした。
