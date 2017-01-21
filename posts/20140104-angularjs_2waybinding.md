@@ -1,6 +1,6 @@
 # AngularJSの2way bindingの仕組みを追ってみた
 
-AngularJSの特徴でもある、モデルとビューの2way binding。  
+AngularJSの特徴でもある、モデルとビューの2way binding。
 AngularJSの簡単なコードがあるとする。（投稿時点ではv1.2.6）
 
 ```html
@@ -26,12 +26,12 @@ AngularJSの簡単なコードがあるとする。（投稿時点ではv1.2.6�
 </body>
 ```
 
-テキストボックスに文字を打ち込むと「{{getMessage()}}」に打ち込んだ文字がリアルタイムに表示されるし、「Set "init"」ボタンを押すとテキストボックスと「{{getMessage()}}」で表示されるテキストが空文字になる。  
-テキストボックスに$scopeのmessageプロパティをバインドしているので、テキストボックスがインタラクティブになるのは分かる。  
+テキストボックスに文字を打ち込むと「{{getMessage()}}」に打ち込んだ文字がリアルタイムに表示されるし、「Set "init"」ボタンを押すとテキストボックスと「{{getMessage()}}」で表示されるテキストが空文字になる。
+テキストボックスに$scopeのmessageプロパティをバインドしているので、テキストボックスがインタラクティブになるのは分かる。
 しかしなぜ$scope.getMessage()も同じタイミングで実行されHTMLまで書き変わるのか。気になる。気になる・・！
 
-AngularJSのソースがどう動いているのか追ってみる。  
-AngularJSはuncompressedなファイルでは全体で20539行。  
+AngularJSのソースがどう動いているのか追ってみる。
+AngularJSはuncompressedなファイルでは全体で20539行。
 ギリギリ読めないことはない。
 
 20535行目でロード時のイベントハンドラが発火される。
@@ -42,13 +42,13 @@ jqLite(document).ready(function() {
 });
 ```
 
-angularInit関数の中で、「'ng:app', 'ng-app', 'x-ng-app', 'data-ng-app'」をid,classあるいは属性で持つ要素がAngularアプリのベース要素としてセットされる。  
+angularInit関数の中で、「'ng:app', 'ng-app', 'x-ng-app', 'data-ng-app'」をid,classあるいは属性で持つ要素がAngularアプリのベース要素としてセットされる。
 該当する要素がなければその後の処理はなにも実行されない。
 
-1283行目のdoBootstrap関数が実行される。  
-名前の通り初期化関数であり、ここでモジュールをロードし、Angular内の各サービスがファクトリー関数でインスタンス化される。  
-ここで利用されるinjectorというオブジェクトは、内部関数を呼び出すための抽象レイヤーみたいなもの。  
-本筋とはずれるが、window.nameに「NG\_DEFER\_BOOTSTRAP」という名前をセットしておくとdoBootstrap関数は呼ばれない。  
+1283行目のdoBootstrap関数が実行される。
+名前の通り初期化関数であり、ここでモジュールをロードし、Angular内の各サービスがファクトリー関数でインスタンス化される。
+ここで利用されるinjectorというオブジェクトは、内部関数を呼び出すための抽象レイヤーみたいなもの。
+本筋とはずれるが、window.nameに「NG\_DEFER\_BOOTSTRAP」という名前をセットしておくとdoBootstrap関数は呼ばれない。
 代わりにangular.resumeBootstrap(extraModules)という、後から手動でdoBootstrap関数を実行できる関数が生える。
 
 サービスのファクトリー関数を見ると、名前の最後に"Provider"をつけて再起的にinvokeしていることが分かる。
@@ -73,10 +73,10 @@ injector.invoke(['$rootScope', '$rootElement', '$compile', '$injector', '$animat
 );
 ```
 
-$apply関数でやっていることは引数に渡した関数を実行すること。  
+$apply関数でやっていることは引数に渡した関数を実行すること。
 ようやくcompile関数にたどり着いた。
 
-compile関数で、引数に渡されたelementから再帰的にHTML要素を舐め、HTML要素にセットした「ng-\*」属性名からディレクティブを呼び出し、ディレクティブのcompile関数で属性値を$eval関数で処理する。  
+compile関数で、引数に渡されたelementから再帰的にHTML要素を舐め、HTML要素にセットした「ng-\*」属性名からディレクティブを呼び出し、ディレクティブのcompile関数で属性値を$eval関数で処理する。
 
 例えば、ng-init属性に対応するngInitDirectiveディレクティブはこのようになっている。
 
@@ -93,10 +93,10 @@ var ngInitDirective = ngDirective({
 });
 ```
 
-ng-controllerやng-modelもcompile関数でディレクティブを集め、返却されたクロージャで各ディレクティブをコンパイルしていく。  
+ng-controllerやng-modelもcompile関数でディレクティブを集め、返却されたクロージャで各ディレクティブをコンパイルしていく。
 ここでまず、「ng-init="message = 'nothing'」といった初期化のための属性値はAngularが持つ構文解析にかけられ、対応するScopeインスタンスにセットされる。
 
-実際に値をセットしているのは、10238行目のsetter関数で行われる。  
+実際に値をセットしているのは、10238行目のsetter関数で行われる。
 最初の引数の「obj」にはScopeインスタンスが入っている。
 
 ```javascript
@@ -151,7 +151,7 @@ return function(expression, locals) {
 };
 ```
 
-実際にインスタンス化されるのは「$injector.instantiate(expression, locals)」の行だが、ここでユーザーが定義したコントローラーのコンストラクタを実行した結果が返る。  
+実際にインスタンス化されるのは「$injector.instantiate(expression, locals)」の行だが、ここでユーザーが定義したコントローラーのコンストラクタを実行した結果が返る。
 新規で作ったFunctionオブジェクトをthisとしてコントローラーのコンストラクタを実行するのが面白い。
 
 ```javascript
@@ -197,8 +197,8 @@ function instantiate(Type, locals) {
 }
 ```
 
-「ng-model」はNgModelControllerとしてインスタンス化され、属性値をwatchする。  
-モデルに指定した変数の値が変更された場合、コントローラーの$viewValueに値をセットして再描画する。  
+「ng-model」はNgModelControllerとしてインスタンス化され、属性値をwatchする。
+モデルに指定した変数の値が変更された場合、コントローラーの$viewValueに値をセットして再描画する。
 これがモデルからビューへのバインディングになっているわけか。
 
 ```javascript
@@ -225,8 +225,8 @@ $scope.$watch(function ngModelWatch() {
 });
 ```
 
-要素が「input type="text"」の場合、textInputTypeというディレクティブが呼ばれる。  
-キー入力を監視し、Scopeインスタンスの$apply関数でコントローラーの$setViewValue関数に新しい値を渡して再描画させる。  
+要素が「input type="text"」の場合、textInputTypeというディレクティブが呼ばれる。
+キー入力を監視し、Scopeインスタンスの$apply関数でコントローラーの$setViewValue関数に新しい値を渡して再描画させる。
 他のinput要素などの再描画ロジックの違いはここで吸収し、ctrl.$renderに関数をセットしている。
 
 ```javascript
@@ -265,9 +265,9 @@ var validate = function(regexp, value) {
 };
 ```
 
-「{{getMessage()}}」で表現している箇所に関しては、TextInterpolateDirectiveのtextInterpolateLinkFn関数でテキストノードにリスナー関数をバインディングする。  
-リスナー関数では「{{}}」を評価した結果を返し、値に変更があればテキストノードの値を書き換える。  
-$scope.messageの値が変わったら、$scope.getMessage()の結果も変わるので、「{{}}」の部分が変更される。  
+「{{getMessage()}}」で表現している箇所に関しては、TextInterpolateDirectiveのtextInterpolateLinkFn関数でテキストノードにリスナー関数をバインディングする。
+リスナー関数では「{{}}」を評価した結果を返し、値に変更があればテキストノードの値を書き換える。
+$scope.messageの値が変わったら、$scope.getMessage()の結果も変わるので、「{{}}」の部分が変更される。
 これでモデルからビューへのバインディングの仕組みが分かった。
 
 ```javascript
@@ -282,7 +282,7 @@ function textInterpolateLinkFn(scope, node) {
 }
 ```
 
-最後に、$rootScope.$digest関数が呼ばれ、Scopeの階層を下りながらScopeのwatch対象に対してリスナー関数を実行していく。  
+最後に、$rootScope.$digest関数が呼ばれ、Scopeの階層を下りながらScopeのwatch対象に対してリスナー関数を実行していく。
 $scope.messageには"nothing"という文字列が新しく入っているので、変更後の値として扱われる。
 
 ```javascript
@@ -313,14 +313,14 @@ if ((watchers = current.$$watchers)) {
 }
 ```
 
-これでbootstrap関数で実行される処理は終わり。  
+これでbootstrap関数で実行される処理は終わり。
 
-長い・・！フレームワークの特性上、ロード時にいろいろやってるのは想像つくけど、これはすごい。  
-クロージャを上手く使ってキャプチャすることでなるべくプロトタイプに値を持たせずに引き回してたり、全体を見たときに作られるインスタンスがとても少ない。  
-Scopeという概念がHTMLの階層とマッチしていて、値の変更時のキャプチャリング/バブリングを上手く抽象化していることが分かる。  
-でもって、Scopeはその階層でのハンドラや独自処理をプロトタイプに書けると。  
-invokeの使い方はAngular使わないコードでも参考になるなー。  
+長い・・！フレームワークの特性上、ロード時にいろいろやってるのは想像つくけど、これはすごい。
+クロージャを上手く使ってキャプチャすることでなるべくプロトタイプに値を持たせずに引き回してたり、全体を見たときに作られるインスタンスがとても少ない。
+Scopeという概念がHTMLの階層とマッチしていて、値の変更時のキャプチャリング/バブリングを上手く抽象化していることが分かる。
+でもって、Scopeはその階層でのハンドラや独自処理をプロトタイプに書けると。
+invokeの使い方はAngular使わないコードでも参考になるなー。
 あと、GoogleClosureLibraryを使ったことのある人だったら見覚えのある実装がいくつかあったりしてニヤッとしたり。
 
-これで2way bindingの仕組みが分かったので、AngularJSと少し仲良くなれた気がする。  
+これで2way bindingの仕組みが分かったので、AngularJSと少し仲良くなれた気がする。
 次はDIともうちょっとディレクティブをちゃんと追ってみよう。

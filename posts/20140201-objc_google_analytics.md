@@ -2,7 +2,7 @@
 
 今作っているアプリで、改善のためにどれくらい画面が使われているか知りたかったので、GoogleAnalyticsを入れたときのメモ。
 
-GoogleAnalyticsはご存知みんな知っているアクセス解析ツール。  
+GoogleAnalyticsはご存知みんな知っているアクセス解析ツール。
 iOS用にもSDKが公開されていて、CocoaPodsを使っていればpod installで簡単に入れられる。
 
 ```sh
@@ -11,7 +11,7 @@ pod 'GoogleAnalytics-iOS-SDK', '~> 3.0'
 
 画面の閲覧回数を取るためには、2つやり方がある。
 
-1つは、GAITrackedViewControllerクラスを継承したUIViewControllerを作る。  
+1つは、GAITrackedViewControllerクラスを継承したUIViewControllerを作る。
 viewDidLoadなどでscreenNameに画面名をセットしておくと、viewDidAppearで自動でトラッキングリクエストが送信される。
 
 ```objc
@@ -28,8 +28,8 @@ viewDidLoadなどでscreenNameに画面名をセットしておくと、viewDidA
 end
 ```
 
-もう1つは、ビューコントローラーのviewDidLoadかviewDidAppearで、GAITrackerクラスを使って画面名を送ってやるやり方。  
-こっちはWebブラウザ版の使い方に近い。  
+もう1つは、ビューコントローラーのviewDidLoadかviewDidAppearで、GAITrackerクラスを使って画面名を送ってやるやり方。
+こっちはWebブラウザ版の使い方に近い。
 UITableViewControllerなどUIViewControllerのサブクラスを使っている場合は、こっちでやるしかない。
 
 ```objc
@@ -43,14 +43,14 @@ UITableViewControllerなどUIViewControllerのサブクラスを使っている�
 }
 ```
 
-つまり、UITableViewControllerをふんだんに使っていたり、UIViewControllerを継承したベースクラスを作っていると、1つ1つのビューに同じ処理を書かないといけない。  
+つまり、UITableViewControllerをふんだんに使っていたり、UIViewControllerを継承したベースクラスを作っていると、1つ1つのビューに同じ処理を書かないといけない。
 これは絶対入れるの忘れそうなのでなんとかしたい。。。と思って調べてみた。
 
-Objective-CにはMethod Swizzlingという、すでに実装されているクラスのメソッドを自前のメソッドに入れ替えるやり方が用意されているらしい。  
+Objective-CにはMethod Swizzlingという、すでに実装されているクラスのメソッドを自前のメソッドに入れ替えるやり方が用意されているらしい。
 "objc/runtime.h"が提供している、method\_exchangeImplementations関数を使えばクラスメソッドの入れ替えが可能になる。
 
-これを使ってUIViewControllerのメソッドを入れ替えれば各画面ごとにアナリティクス処理を書かずに済みそう。  
-つまり、UIViewControllerのカテゴリ拡張を作って、viewDidAppearをGATrackerの処理を追加してものに入れ替える関数を用意する。  
+これを使ってUIViewControllerのメソッドを入れ替えれば各画面ごとにアナリティクス処理を書かずに済みそう。
+つまり、UIViewControllerのカテゴリ拡張を作って、viewDidAppearをGATrackerの処理を追加してものに入れ替える関数を用意する。
 画面名には「NSStringFromClass([self class])」でクラス名を自動でセットしてやる。
 
 ```objc
@@ -101,5 +101,5 @@ AppDelegateでこいつを呼び出してUIViewControllerのviewDidAppear関数�
 @end
 ```
 
-これで、UIViewControllerを継承しているUITableViewControllerや自作ビューコントローラーでも、自動でトラッキング処理が走るようになります。  
+これで、UIViewControllerを継承しているUITableViewControllerや自作ビューコントローラーでも、自動でトラッキング処理が走るようになります。
 method\_exchangeimplementations、Rubyのalias\_method感覚で使えるヒッジョーに面白い仕組みですが、そのクラスと子クラスすべての挙動が変わるので使いどころには要注意ですね。

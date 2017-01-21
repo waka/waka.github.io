@@ -3,7 +3,7 @@
 Android StudioがBetaになったので、0.8.2に上げようとしたらモジュールのビルドでハマった。
 
 Android Studioのバージョンを上げるときは、build.gradleを弄る時でもある。
-Betaに上げるからには最新版のGradleプラグインとAndroid SDKでコンパイル&ビルドできるようにしたい。  
+Betaに上げるからには最新版のGradleプラグインとAndroid SDKでコンパイル&ビルドできるようにしたい。
 
 ```
 // project/gradle/gradle-wrapper.properties
@@ -26,8 +26,8 @@ android {
 }
 ```
 
-しかしビルドエラー。  
-ルートプロジェクトのGradleプラグインのバージョンを0.12に上げると、buildToolsVersionが"19.1"以上でないとビルドできない。  
+しかしビルドエラー。
+ルートプロジェクトのGradleプラグインのバージョンを0.12に上げると、buildToolsVersionが"19.1"以上でないとビルドできない。
 僕の環境では[volley](https://android.googlesource.com/platform/frameworks/volley/)をモジュール（submodule）として組み込んでいて、compileSdkVersionとbuildToolsVersionがこのように指定されている。
 
 ```
@@ -38,7 +38,7 @@ android {
 }
 ```
 
-volleyのソースを見る限りbuildToolsVersionを20に上げても特に問題なさそうなので、何とかしてビルドが実行される前にandroid()の中身を上書きしたい。  
+volleyのソースを見る限りbuildToolsVersionを20に上げても特に問題なさそうなので、何とかしてビルドが実行される前にandroid()の中身を上書きしたい。
 と思って、[Gradle User Guide](http://www.gradle.org/docs/1.12/userguide/userguide.html)を眺めていたら、Project.afterEvaluate()というものを見つけた。
 Project.afterEvaluate()は、そのプロジェクトのビルドスクリプトが評価された後に実行されるらしい。まさにやりたいことと一致！
 
@@ -58,7 +58,7 @@ subprojects { subproject ->
 }
 ```
 
-これで、モジュールとして組み込んでいるライブラリプロジェクト全てのcompileSdkVersionとbuildToolsVersionをアプリのそれと合わせることができる。  
+これで、モジュールとして組み込んでいるライブラリプロジェクト全てのcompileSdkVersionとbuildToolsVersionをアプリのそれと合わせることができる。
 もし特定のプロジェクトだけどうしても"19.1"でビルドしたければ、プロジェクトごとに指定すればおk。
 
 ```
