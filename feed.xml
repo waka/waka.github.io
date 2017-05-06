@@ -4,16 +4,93 @@
   <subtitle>Fragment of code</subtitle>
   <id>http://waka.github.io</id>
   <link href="http://waka.github.io"/>
-  <updated>2017-01-22T00:00:00+0000</updated>
+  <updated>2017-05-07T00:00:00+0000</updated>
   <author>
     <name>yo_waka</name>
   </author>
+  <entry>
+    <title>slackとshellとeditorとtwitter</title>
+    <link rel="alternate" href="http://waka.github.io/2017/5/7/20170507_dan_sha_ri.html"/>
+    <id>http://waka.github.io/2017/5/7/20170507_dan_sha_ri.html</id>
+    <published>2017-05-07T00:00:00+0000</published>
+    <updated>2017-05-07T00:14:23+0900</updated>
+    <author>
+      <name>yo_waka</name>
+    </author>
+    <content type="html">&lt;h1&gt;slackとshellとeditorとtwitter&lt;/h1&gt;
+
+&lt;p&gt;最近、業務時間中見ている時間が長いのが掲題の4つなので使い方を見直した。どう見ても日記です。&lt;/p&gt;
+
+&lt;h2&gt;slack&lt;/h2&gt;
+
+&lt;p&gt;STARREDなchannelを10個に減らした。見なきゃいけないのが1つ増えたらどこか1つ減らして10個以上にしないルールにしている。&lt;br&gt;
+STARRED以外のチャンネルについても10個を除いてすべてmute（たまにメンションされるもの）かleaveするというルールにした。&lt;br&gt;
+業務関係ないゆるふわなchannelは自分自身が活用している1つを除いて全部leave。&lt;br&gt;
+この運用にしてからは通知が減ったため、slackを見てしまう時間が減ってよい感じ。&lt;br&gt;
+とはいえ、コミュニケーション系の部屋でメンションを飛ばされる、そしてそのやりとりが続くと時間が吸い取られ疲弊するのなんとかしたい。&lt;br&gt;
+そして、スレッドはやりとりがブラックボックスにしかならないのでやめような。&lt;/p&gt;
+
+&lt;h2&gt;shell&lt;/h2&gt;
+
+&lt;p&gt;zshのスクリプトメンテするのめんどくなってきたし、そもそも自分はzshのこと全然よくわかってなかったことに気づいたのでfishに乗り換えた。&lt;br&gt;
+&lt;a href="https://fisherman.github.io/"&gt;fisherman&lt;/a&gt;便利。これまでzshでやってたことはほぼプラグインでインストールできたのでもうスクリプト書かなくてよくなった。&lt;br&gt;
+ついでにpecoからfzfに乗り換え。&lt;br&gt;
+デフォルトでいい感じに補完が効くし表示もよい。今の開発環境では特に問題も起きてないのでもうこれでいいやという気持ち。&lt;/p&gt;
+
+&lt;p&gt;入れたプラグイン&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;z&lt;/li&gt;
+&lt;li&gt;ghq&lt;/li&gt;
+&lt;li&gt;fzf&lt;/li&gt;
+&lt;li&gt;git_util&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;zshの方が便利だなーと思ったのはエイリアスの機能。&lt;br&gt;
+普段仕事で触ってるgitリポジトリが大きいのでブランチ補完が遅く、&lt;code&gt;B&lt;/code&gt; とか打つとpecoでgit branchの結果をフィルタするエイリアスにしてた。&lt;br&gt;
+fishだとできないので、こんな感じでコマンド作ってお茶を濁した。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;alias&lt;/span&gt; &lt;span class="n"&gt;gc&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;git branch | fzf | xargs git checkout&amp;quot;&lt;/span&gt;
+&lt;span class="n"&gt;alias&lt;/span&gt; &lt;span class="n"&gt;gd&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;git branch | fzf | xargs git branch -D&amp;quot;&lt;/span&gt;
+&lt;span class="n"&gt;alias&lt;/span&gt; &lt;span class="n"&gt;gp&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;git branch | fzf | xargs git push origin&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;h2&gt;editor&lt;/h2&gt;
+
+&lt;p&gt;vimからVSCodeに乗り換えた（何年かぶり何回目）。&lt;br&gt;
+これもfishと同じでなるべく自分で設定するのはもうやめようという気持ちから。nvimになってもろもろプラグインが新しくなったり開発も活発だったりしていてvimrcメンテするの疲れてしまった。&lt;br&gt;
+VSCodeは統合環境ぽさがあって、プラグイン入れたらほとんど設定せずにいい感じに使えるのが素敵。変える場合もJSONで設定ファイル弄れるのがよい。&lt;/p&gt;
+
+&lt;p&gt;入れたプラグイン&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Ruby&lt;/li&gt;
+&lt;li&gt;Golang&lt;/li&gt;
+&lt;li&gt;Vim&lt;/li&gt;
+&lt;li&gt;Dracura&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;さすがMSというか、ファイル検索が本当に早い。大きなリポジトリでも適当なワードでサクサク検索できる。&lt;br&gt;
+統合ターミナルも便利。これでiTerm2をアプリとして立ち上げる場面が激減した。SSHログインするときくらいしかもうiTerm2起動してない。立ち上げるアプリを減らせてよかった。&lt;/p&gt;
+
+&lt;h2&gt;twitter&lt;/h2&gt;
+
+&lt;p&gt;なんだかんだ仕事中開いてちょくちょく見ちゃう。そしてその際にターミナルからアプリを切り替えることで集中が切れてしまうのなんとかしたかった。&lt;br&gt;
+ので、VSCodeの統合ターミナル上で見れるように&lt;a href="https://github.com/waka/twg-go"&gt;CUIアプリとして動くtwitterクライアント&lt;/a&gt;作った。&lt;br&gt;
+GWだしGolangで何か書いてみたかったのもある。&lt;/p&gt;
+
+&lt;p&gt;TweetDeckみたいに複数TLを見たければtmuxでペイン分割して起動すればいい。欲しかったので自動読み込みもつけた。&lt;br&gt;
+&lt;img src="/assets/images/vscode_01.png" /&gt;&lt;/p&gt;
+
+&lt;p&gt;全然関係ないけど、CUIアプリはWebアプリのUI(HTML)と違って子コンポーネントからrenderしていって、最後に全描画内容をflushするのが面白い。&lt;br&gt;
+最初同じUI設計だしfluxぽくやるかと始めたら全然相性よくなくて止めた。素直にイベントリスナー使うようにした。&lt;br&gt;
+描画周りはpecoで使われていた&lt;a href="https://github.com/nsf/termbox-go"&gt;termbox-go&lt;/a&gt;を使った。めんどくさいエスケープシーケンスやカラーリング周りを上手く抽象化してくれていて簡単に書けて便利。&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <title>78.9 (7hack)というPodcastを聴くためのAndroidアプリを作った</title>
     <link rel="alternate" href="http://waka.github.io/2017/1/22/released_podcast_app.html"/>
     <id>http://waka.github.io/2017/1/22/released_podcast_app.html</id>
     <published>2017-01-22T00:00:00+0000</published>
-    <updated>2017-01-22T03:54:37+0900</updated>
+    <updated>2017-02-05T15:42:18+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -141,7 +218,7 @@ SQLiteの中身をLocalStorage見る感覚で確認できるの最高。&lt;br&g
     <link rel="alternate" href="http://waka.github.io/2015/12/12/npm_setup.html"/>
     <id>http://waka.github.io/2015/12/12/npm_setup.html</id>
     <published>2015-12-12T00:00:00+0000</published>
-    <updated>2017-01-22T03:54:37+0900</updated>
+    <updated>2017-02-05T15:42:18+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -188,7 +265,7 @@ filesにlibだけを書いておけば成果物のサイズが小さくなるの
     <link rel="alternate" href="http://waka.github.io/2015/11/25/gulp_sprockets.html"/>
     <id>http://waka.github.io/2015/11/25/gulp_sprockets.html</id>
     <published>2015-11-25T00:00:00+0000</published>
-    <updated>2017-01-22T03:54:37+0900</updated>
+    <updated>2017-02-05T15:42:18+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -289,7 +366,7 @@ SprocketsではSassコンパイラにカスタム関数として定義してコ�
     <link rel="alternate" href="http://waka.github.io/2014/10/26/reactivecocoa_tokyo_freee.html"/>
     <id>http://waka.github.io/2014/10/26/reactivecocoa_tokyo_freee.html</id>
     <published>2014-10-26T00:00:00+0000</published>
-    <updated>2017-01-22T03:54:37+0900</updated>
+    <updated>2017-02-05T15:42:18+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -324,7 +401,7 @@ SprocketsではSassコンパイラにカスタム関数として定義してコ�
     <link rel="alternate" href="http://waka.github.io/2014/7/19/gradle_module_build.html"/>
     <id>http://waka.github.io/2014/7/19/gradle_module_build.html</id>
     <published>2014-07-19T00:00:00+0000</published>
-    <updated>2017-01-22T03:54:37+0900</updated>
+    <updated>2017-02-05T15:42:18+0900</updated>
     <author>
       <name>yo_waka</name>
     </author>
@@ -390,35 +467,5 @@ Gradleのバージョンごとに用意されているので、使っている�
   &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;</content>
-  </entry>
-  <entry>
-    <title>渋谷JavaでRxJavaをAndroidアプリでどう活用するかという話をした</title>
-    <link rel="alternate" href="http://waka.github.io/2014/6/22/android_rxjava.html"/>
-    <id>http://waka.github.io/2014/6/22/android_rxjava.html</id>
-    <published>2014-06-22T00:00:00+0000</published>
-    <updated>2017-01-22T03:54:37+0900</updated>
-    <author>
-      <name>yo_waka</name>
-    </author>
-    <content type="html">&lt;h1&gt;渋谷JavaでRxJavaをAndroidアプリでどう活用するかという話をした&lt;/h1&gt;
-
-&lt;p&gt;少し、いやかなり前に渋谷Javaで「Android meets RxJava」というタイトルでLTしてきました。&lt;br&gt;
-スライド上げるのが遅くなってすいません。。。&lt;/p&gt;
-
-&lt;p&gt;&lt;iframe src="//www.slideshare.net/slideshow/embed_code/36154175" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen&gt; &lt;/iframe&gt; &lt;div style="margin-bottom:5px"&gt; &lt;strong&gt; &lt;a href="https://www.slideshare.net/yo_waka/rxjava-meets-android-java6" title="RxJava meets Android - 渋谷Java#6" target="_blank"&gt;RxJava meets Android - 渋谷Java#6&lt;/a&gt; &lt;/strong&gt; from &lt;strong&gt;&lt;a href="http://www.slideshare.net/yo_waka" target="_blank"&gt;yo_waka &lt;/a&gt;&lt;/strong&gt; &lt;/div&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href="http://www.freee.co.jp/features/android"&gt;freeeのAndroidアプリ&lt;/a&gt;の開発前にチーム内で考えていたのが、テストの書きやすさを考慮するとどうしてもFragmentとAPIのやりとり含むビジネスロジックを切り分けたいというところで、&lt;br&gt;
-ViewController/ViewModel/Modelを上手く疎に分けられる仕組みが必要でした。&lt;/p&gt;
-
-&lt;p&gt;先行して開発していたiPhone版では、ReactiveCocoaを導入して上手くいったこともあり、FRPが出来るJavaのいいライブラリはないか探していたところ、上手くマッチしそうだったのがRxJavaでした。&lt;br&gt;&lt;br&gt;
-RxJavaのObservable、Subscriber、Func/Actionを使うことで、API呼び出し/モデルへの変換/画面への表示を上手く切り分けることが可能になります。&lt;br&gt;
-また、ViewModelのプロパティをFragmentからバインディングすることにより、データの状態をFragment側で管理する必要がなくなります。&lt;/p&gt;
-
-&lt;p&gt;Fragment側でデータの状態を持ってしまうと、いざそのテストを書く際にUIが必要になるので非常にめんどくさい。ViewModelまでで完結できればユニットテストだけでOK。&lt;br&gt;
-とはいえ、スライドにも書いてますが、ビジネスロジックがそこまで複雑でなければEventBusなどでやり取りするのもアリだと思います。&lt;/p&gt;
-
-&lt;p&gt;こういうFRPなライブラリをクライアントアプリで使うと、コアな部分で使うためどうしてもロックインを防げないのがデメリットです。&lt;br&gt;
-&lt;a href="http://www.reactive-streams.org/"&gt;Reactive Streams&lt;/a&gt;による標準化に期待。&lt;/p&gt;
-</content>
   </entry>
 </feed>

@@ -1,0 +1,67 @@
+<!DOCTYPE html><html><head><meta charset="utf-8" /><meta content="IE=edge;chrome=1" http-equiv="X-UA-Compatible" /><meta content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" name="viewport" /><title>slackとshellとeditorとtwitter - yo_waka&#39;s blog</title><link href="/feed.xml" rel="alternate" title="Atom Feed" type="application/atom+xml" /><link href="/assets/images/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" /><link href="/assets/stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/syntax_highlight.css" rel="stylesheet" type="text/css" /><link href="/assets/stylesheets/main.css?1494083680" rel="stylesheet" type="text/css" /></head><body><div class="layout"><header class="header"><h1><a href="/index.html">yo_waka&#39;s blog</a></h1></header><div class="main"><div class="container"><div class="content"><div class="post-date">2017-05-07</div><article class="post"><h1>slackとshellとeditorとtwitter</h1>
+
+<p>最近、業務時間中見ている時間が長いのが掲題の4つなので使い方を見直した。どう見ても日記です。</p>
+
+<h2>slack</h2>
+
+<p>STARREDなchannelを10個に減らした。見なきゃいけないのが1つ増えたらどこか1つ減らして10個以上にしないルールにしている。<br>
+STARRED以外のチャンネルについても10個を除いてすべてmute（たまにメンションされるもの）かleaveするというルールにした。<br>
+業務関係ないゆるふわなchannelは自分自身が活用している1つを除いて全部leave。<br>
+この運用にしてからは通知が減ったため、slackを見てしまう時間が減ってよい感じ。<br>
+とはいえ、コミュニケーション系の部屋でメンションを飛ばされる、そしてそのやりとりが続くと時間が吸い取られ疲弊するのなんとかしたい。<br>
+そして、スレッドはやりとりがブラックボックスにしかならないのでやめような。</p>
+
+<h2>shell</h2>
+
+<p>zshのスクリプトメンテするのめんどくなってきたし、そもそも自分はzshのこと全然よくわかってなかったことに気づいたのでfishに乗り換えた。<br>
+<a href="https://fisherman.github.io/">fisherman</a>便利。これまでzshでやってたことはほぼプラグインでインストールできたのでもうスクリプト書かなくてよくなった。<br>
+ついでにpecoからfzfに乗り換え。<br>
+デフォルトでいい感じに補完が効くし表示もよい。今の開発環境では特に問題も起きてないのでもうこれでいいやという気持ち。</p>
+
+<p>入れたプラグイン</p>
+
+<ul>
+<li>z</li>
+<li>ghq</li>
+<li>fzf</li>
+<li>git_util</li>
+</ul>
+
+<p>zshの方が便利だなーと思ったのはエイリアスの機能。<br>
+普段仕事で触ってるgitリポジトリが大きいのでブランチ補完が遅く、<code>B</code> とか打つとpecoでgit branchの結果をフィルタするエイリアスにしてた。<br>
+fishだとできないので、こんな感じでコマンド作ってお茶を濁した。</p>
+<div class="highlight"><pre><span class="n">alias</span> <span class="n">gc</span> <span class="s">&quot;git branch | fzf | xargs git checkout&quot;</span>
+<span class="n">alias</span> <span class="n">gd</span> <span class="s">&quot;git branch | fzf | xargs git branch -D&quot;</span>
+<span class="n">alias</span> <span class="n">gp</span> <span class="s">&quot;git branch | fzf | xargs git push origin&quot;</span>
+</pre></div>
+<h2>editor</h2>
+
+<p>vimからVSCodeに乗り換えた（何年かぶり何回目）。<br>
+これもfishと同じでなるべく自分で設定するのはもうやめようという気持ちから。nvimになってもろもろプラグインが新しくなったり開発も活発だったりしていてvimrcメンテするの疲れてしまった。<br>
+VSCodeは統合環境ぽさがあって、プラグイン入れたらほとんど設定せずにいい感じに使えるのが素敵。変える場合もJSONで設定ファイル弄れるのがよい。</p>
+
+<p>入れたプラグイン</p>
+
+<ul>
+<li>Ruby</li>
+<li>Golang</li>
+<li>Vim</li>
+<li>Dracura</li>
+</ul>
+
+<p>さすがMSというか、ファイル検索が本当に早い。大きなリポジトリでも適当なワードでサクサク検索できる。<br>
+統合ターミナルも便利。これでiTerm2をアプリとして立ち上げる場面が激減した。SSHログインするときくらいしかもうiTerm2起動してない。立ち上げるアプリを減らせてよかった。</p>
+
+<h2>twitter</h2>
+
+<p>なんだかんだ仕事中開いてちょくちょく見ちゃう。そしてその際にターミナルからアプリを切り替えることで集中が切れてしまうのなんとかしたかった。<br>
+ので、VSCodeの統合ターミナル上で見れるように<a href="https://github.com/waka/twg-go">CUIアプリとして動くtwitterクライアント</a>作った。<br>
+GWだしGolangで何か書いてみたかったのもある。</p>
+
+<p>TweetDeckみたいに複数TLを見たければtmuxでペイン分割して起動すればいい。欲しかったので自動読み込みもつけた。<br>
+<img src="/assets/images/vscode_01.png" /></p>
+
+<p>全然関係ないけど、CUIアプリはWebアプリのUI(HTML)と違って子コンポーネントからrenderしていって、最後に全描画内容をflushするのが面白い。<br>
+最初同じUI設計だしfluxぽくやるかと始めたら全然相性よくなくて止めた。素直にイベントリスナー使うようにした。<br>
+描画周りはpecoで使われていた<a href="https://github.com/nsf/termbox-go">termbox-go</a>を使った。めんどくさいエスケープシーケンスやカラーリング周りを上手く抽象化してくれていて簡単に書けて便利。</p>
+</article></div></div><div class="profile"><div class="account"><a href="https://twitter.com/yo_waka" target="_blank"><img height="48" src="/assets/images/waka.png" width="48" /></a></div><div class="intro"><a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a><p>Software Engineer. Joined at freee K.K. since 2013. I like Ruby and JavaScript, but I really like Java.</p></div></div><footer class="footer"><p class="copyright">Copyright &copy; 2013 by <a href="https://twitter.com/yo_waka" target="_blank">@yo_waka</a></p></footer></div></div></body></html>
